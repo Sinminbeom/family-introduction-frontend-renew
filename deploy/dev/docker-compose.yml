@@ -1,0 +1,23 @@
+version: '3'
+services:
+  # 개발환경
+  <PROJECT_NAME>:
+    image: <PROJECT_NAME>:<BUILD_VER>
+    container_name: <PROJECT_NAME>
+    networks:
+      - infra_network
+    # 포트 포워딩
+    ports:
+      - "3000:80"
+    environment:
+      - TZ=Asia/Seoul
+    restart: always
+
+networks:
+  infra_network:
+    driver: bridge
+    external: true
+    internal: true
+
+
+
