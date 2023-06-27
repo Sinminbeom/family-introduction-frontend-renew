@@ -17,7 +17,7 @@ import {
     InputAdornment,
     InputLabel,
     OutlinedInput,
-    TextField,
+    // TextField,
     Typography,
     useMediaQuery
 } from '@mui/material';
@@ -50,7 +50,7 @@ const FirebaseRegister = ({ ...others }) => {
 
     const [strength, setStrength] = React.useState(0);
     const [level, setLevel] = React.useState<StringColorProps>();
-    const { firebaseRegister, firebaseGoogleSignIn } = useAuth();
+    const { firebaseGoogleSignIn } = useAuth(); // firebaseRegister
 
     const googleHandler = async () => {
         try {
@@ -136,31 +136,42 @@ const FirebaseRegister = ({ ...others }) => {
 
             <Formik
                 initialValues={{
+                    name: '',
                     email: '',
                     password: '',
                     submit: null
                 }}
                 validationSchema={Yup.object().shape({
+                    name: Yup.string().max(255).required('Name is required'),
                     email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
                     password: Yup.string().max(255).required('Password is required')
                 })}
                 onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
                     try {
-                        await firebaseRegister(values.email, values.password).then(
-                            () => {
-                                // WARNING: do not set any formik state here as formik might be already destroyed here. You may get following error by doing so.
-                                // Warning: Can't perform a React state update on an unmounted component. This is a no-op, but it indicates a memory leak in your application.
-                                // To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function.
-                                // github issue: https://github.com/formium/formik/issues/2430
-                            },
-                            (err: any) => {
-                                if (scriptedRef.current) {
-                                    setStatus({ success: false });
-                                    setErrors({ submit: err.message });
-                                    setSubmitting(false);
-                                }
-                            }
-                        );
+                        await fetch('http://localhost:8080/users/new', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: values.email, name: values.name, password: values.password })
+                        })
+                            // .then((res) => res.json())
+                            .then((result) => {
+                                console.log(result);
+                            });
+                        // await firebaseRegister(values.email, values.password).then(
+                        //     () => {
+                        //         // WARNING: do not set any formik state here as formik might be already destroyed here. You may get following error by doing so.
+                        //         // Warning: Can't perform a React state update on an unmounted component. This is a no-op, but it indicates a memory leak in your application.
+                        //         // To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function.
+                        //         // github issue: https://github.com/formium/formik/issues/2430
+                        //     },
+                        //     (err: any) => {
+                        //         if (scriptedRef.current) {
+                        //             setStatus({ success: false });
+                        //             setErrors({ submit: err.message });
+                        //             setSubmitting(false);
+                        //         }
+                        //     }
+                        // );
                     } catch (err: any) {
                         console.error(err);
                         if (scriptedRef.current) {
@@ -173,13 +184,13 @@ const FirebaseRegister = ({ ...others }) => {
             >
                 {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
                     <form noValidate onSubmit={handleSubmit} {...others}>
-                        <Grid container spacing={matchDownSM ? 0 : 2}>
-                            <Grid item xs={12} sm={6}>
+                        {/* <Grid container spacing={matchDownSM ? 0 : 2}>
+                            <Grid item xs={12} sm={12}>
                                 <TextField
                                     fullWidth
-                                    label="First Name"
+                                    label="Name"
                                     margin="normal"
-                                    name="fname"
+                                    name="name"
                                     type="text"
                                     defaultValue=""
                                     sx={{ ...theme.typography.customInput }}
@@ -196,7 +207,24 @@ const FirebaseRegister = ({ ...others }) => {
                                     sx={{ ...theme.typography.customInput }}
                                 />
                             </Grid>
-                        </Grid>
+                        </Grid> */}
+                        <FormControl fullWidth error={Boolean(touched.email && errors.email)} sx={{ ...theme.typography.customInput }}>
+                            <InputLabel htmlFor="outlined-adornment-name-register">Username</InputLabel>
+                            <OutlinedInput
+                                id="outlined-adornment-name-register"
+                                type="name"
+                                value={values.name}
+                                name="name"
+                                onBlur={handleBlur}
+                                onChange={handleChange}
+                                inputProps={{}}
+                            />
+                            {touched.name && errors.name && (
+                                <FormHelperText error id="standard-weight-helper-text--register">
+                                    {errors.name}
+                                </FormHelperText>
+                            )}
+                        </FormControl>
                         <FormControl fullWidth error={Boolean(touched.email && errors.email)} sx={{ ...theme.typography.customInput }}>
                             <InputLabel htmlFor="outlined-adornment-email-register">Email Address / Username</InputLabel>
                             <OutlinedInput
