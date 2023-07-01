@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+// import { useSelector } from 'react-redux';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -8,7 +8,7 @@ import {
     Box,
     Button,
     Checkbox,
-    Divider,
+    // Divider,
     FormControl,
     FormControlLabel,
     FormHelperText,
@@ -18,8 +18,8 @@ import {
     InputLabel,
     OutlinedInput,
     // TextField,
-    Typography,
-    useMediaQuery
+    Typography
+    // useMediaQuery
 } from '@mui/material';
 
 // third party
@@ -27,38 +27,41 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 
 // project imports
-import useAuth from 'hooks/useAuth';
+// import useAuth from 'hooks/useAuth';
 import useScriptRef from 'hooks/useScriptRef';
-import Google from 'assets/images/icons/social-google.svg';
+// import Google from 'assets/images/icons/social-google.svg';
 import AnimateButton from 'ui-component/extended/AnimateButton';
 import { strengthColor, strengthIndicator } from 'utils/password-strength';
+import UserContext from 'contexts/UserContext';
+import { LOGIN } from 'store/actions';
 
 // assets
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { DefaultRootStateProps, StringColorProps } from 'types';
+import { StringColorProps } from 'types'; // DefaultRootStateProps
 
 // ===========================|| FIREBASE - REGISTER ||=========================== //
 
 const FirebaseRegister = ({ ...others }) => {
     const theme = useTheme();
     const scriptedRef = useScriptRef();
-    const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
-    const customization = useSelector((state: DefaultRootStateProps) => state.customization);
+    // const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
+    // const customization = useSelector((state: DefaultRootStateProps) => state.customization);
     const [showPassword, setShowPassword] = React.useState(false);
     const [checked, setChecked] = React.useState(true);
 
     const [strength, setStrength] = React.useState(0);
     const [level, setLevel] = React.useState<StringColorProps>();
-    const { firebaseGoogleSignIn } = useAuth(); // firebaseRegister
+    const user = useContext(UserContext);
+    // const { firebaseRegister, firebaseGoogleSignIn } = useAuth();
 
-    const googleHandler = async () => {
-        try {
-            await firebaseGoogleSignIn();
-        } catch (err) {
-            console.error(err);
-        }
-    };
+    // const googleHandler = async () => {
+    //     try {
+    //         await firebaseGoogleSignIn();
+    //     } catch (err) {
+    //         console.error(err);
+    //     }
+    // };
 
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword);
@@ -81,7 +84,7 @@ const FirebaseRegister = ({ ...others }) => {
     return (
         <>
             <Grid container direction="column" justifyContent="center" spacing={2}>
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}>
                     <AnimateButton>
                         <Button
                             variant="outlined"
@@ -100,8 +103,8 @@ const FirebaseRegister = ({ ...others }) => {
                             Sign up with Google
                         </Button>
                     </AnimateButton>
-                </Grid>
-                <Grid item xs={12}>
+                </Grid> */}
+                {/* <Grid item xs={12}>
                     <Box sx={{ alignItems: 'center', display: 'flex' }}>
                         <Divider sx={{ flexGrow: 1 }} orientation="horizontal" />
                         <Button
@@ -126,7 +129,7 @@ const FirebaseRegister = ({ ...others }) => {
                         </Button>
                         <Divider sx={{ flexGrow: 1 }} orientation="horizontal" />
                     </Box>
-                </Grid>
+                </Grid> */}
                 <Grid item xs={12} container alignItems="center" justifyContent="center">
                     <Box sx={{ mb: 2 }}>
                         <Typography variant="subtitle1">Sign up with Email address</Typography>
@@ -148,14 +151,35 @@ const FirebaseRegister = ({ ...others }) => {
                 })}
                 onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
                     try {
-                        await fetch('http://localhost:8080/users/new', {
+                        await fetch('http://localhost:8080/register', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ email: values.email, name: values.name, password: values.password })
                         })
-                            // .then((res) => res.json())
+                            .then((res) => res.json())
                             .then((result) => {
-                                console.log(result);
+                                if (result) {
+                                    if (result.status === 200) {
+                                        user?.dispatch({
+                                            type: LOGIN,
+                                            payload: {
+                                                isLoggedIn: true,
+                                                user: {
+                                                    id: result.data.id,
+                                                    email: result.data.email!,
+                                                    name: result.data.name || 'Betty'
+                                                }
+                                            }
+                                        });
+                                        sessionStorage.setItem('user', JSON.stringify(result.data));
+                                    } else if (result.status !== 200) {
+                                        if (scriptedRef.current) {
+                                            setStatus({ success: false });
+                                            setErrors({ submit: result.message });
+                                            setSubmitting(false);
+                                        }
+                                    }
+                                }
                             });
                         // await firebaseRegister(values.email, values.password).then(
                         //     () => {
@@ -166,6 +190,7 @@ const FirebaseRegister = ({ ...others }) => {
                         //     },
                         //     (err: any) => {
                         //         if (scriptedRef.current) {
+                        //             console.log(err);
                         //             setStatus({ success: false });
                         //             setErrors({ submit: err.message });
                         //             setSubmitting(false);
@@ -208,7 +233,7 @@ const FirebaseRegister = ({ ...others }) => {
                                 />
                             </Grid>
                         </Grid> */}
-                        <FormControl fullWidth error={Boolean(touched.email && errors.email)} sx={{ ...theme.typography.customInput }}>
+                        <FormControl fullWidth error={Boolean(touched.name && errors.name)} sx={{ ...theme.typography.customInput }}>
                             <InputLabel htmlFor="outlined-adornment-name-register">Username</InputLabel>
                             <OutlinedInput
                                 id="outlined-adornment-name-register"

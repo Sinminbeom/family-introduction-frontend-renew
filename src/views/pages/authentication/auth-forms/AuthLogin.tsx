@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
@@ -18,8 +18,8 @@ import {
     InputLabel,
     OutlinedInput,
     Stack,
-    Typography,
-    useMediaQuery
+    Typography
+    // useMediaQuery
 } from '@mui/material';
 
 // third party
@@ -27,7 +27,7 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 
 // project imports
-import useAuth from 'hooks/useAuth';
+// import useAuth from 'hooks/useAuth';
 import useScriptRef from 'hooks/useScriptRef';
 import AnimateButton from 'ui-component/extended/AnimateButton';
 
@@ -35,26 +35,29 @@ import AnimateButton from 'ui-component/extended/AnimateButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
-import Google from 'assets/images/icons/social-google.svg';
+// import Google from 'assets/images/icons/social-google.svg';
 import { DefaultRootStateProps } from 'types';
+import { LOGIN } from 'store/actions';
+import UserContext from 'contexts/UserContext';
 
 // ============================|| FIREBASE - LOGIN ||============================ //
 
 const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
     const theme = useTheme();
     const scriptedRef = useScriptRef();
-    const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
+    // const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
     const customization = useSelector((state: DefaultRootStateProps) => state.customization);
     const [checked, setChecked] = React.useState(true);
+    const user = useContext(UserContext);
 
-    const { firebaseEmailPasswordSignIn, firebaseGoogleSignIn } = useAuth();
-    const googleHandler = async () => {
-        try {
-            await firebaseGoogleSignIn();
-        } catch (err) {
-            console.error(err);
-        }
-    };
+    // const { firebaseEmailPasswordSignIn, firebaseGoogleSignIn } = useAuth();
+    // const googleHandler = async () => {
+    //     try {
+    //         await firebaseGoogleSignIn();
+    //     } catch (err) {
+    //         console.error(err);
+    //     }
+    // };
 
     const [showPassword, setShowPassword] = React.useState(false);
     const handleClickShowPassword = () => {
@@ -68,7 +71,7 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
     return (
         <>
             <Grid container direction="column" justifyContent="center" spacing={2}>
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}>
                     <AnimateButton>
                         <Button
                             disableElevation
@@ -88,7 +91,7 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
                             Sign in with Google
                         </Button>
                     </AnimateButton>
-                </Grid>
+                </Grid> */}
                 <Grid item xs={12}>
                     <Box
                         sx={{
@@ -131,8 +134,8 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
 
             <Formik
                 initialValues={{
-                    email: 'info@codedthemes.com',
-                    password: '123456',
+                    email: 'alsqja17@naver.com',
+                    password: '1234',
                     submit: null
                 }}
                 validationSchema={Yup.object().shape({
@@ -141,21 +144,51 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
                 })}
                 onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
                     try {
-                        await firebaseEmailPasswordSignIn(values.email, values.password).then(
-                            () => {
-                                // WARNING: do not set any formik state here as formik might be already destroyed here. You may get following error by doing so.
-                                // Warning: Can't perform a React state update on an unmounted component. This is a no-op, but it indicates a memory leak in your application.
-                                // To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function.
-                                // github issue: https://github.com/formium/formik/issues/2430
-                            },
-                            (err: any) => {
-                                if (scriptedRef.current) {
-                                    setStatus({ success: false });
-                                    setErrors({ submit: err.message });
-                                    setSubmitting(false);
+                        // await firebaseEmailPasswordSignIn(values.email, values.password).then(
+                        //     () => {
+                        //         // WARNING: do not set any formik state here as formik might be already destroyed here. You may get following error by doing so.
+                        //         // Warning: Can't perform a React state update on an unmounted component. This is a no-op, but it indicates a memory leak in your application.
+                        //         // To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function.
+                        //         // github issue: https://github.com/formium/formik/issues/2430
+                        //     },
+                        //     (err: any) => {
+                        //         if (scriptedRef.current) {
+                        //             setStatus({ success: false });
+                        //             setErrors({ submit: err.message });
+                        //             setSubmitting(false);
+                        //         }
+                        //     }
+                        // );
+                        await fetch('http://localhost:8080/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: values.email, password: values.password })
+                        })
+                            .then((res) => res.json())
+                            .then((result) => {
+                                if (result) {
+                                    if (result.status === 200) {
+                                        user?.dispatch({
+                                            type: LOGIN,
+                                            payload: {
+                                                isLoggedIn: true,
+                                                user: {
+                                                    id: result.data.id,
+                                                    email: result.data.email!,
+                                                    name: result.data.name || 'Betty'
+                                                }
+                                            }
+                                        });
+                                        sessionStorage.setItem('user', JSON.stringify(result.data));
+                                    } else if (result.status !== 200) {
+                                        if (scriptedRef.current) {
+                                            setStatus({ success: false });
+                                            setErrors({ submit: result.message });
+                                            setSubmitting(false);
+                                        }
+                                    }
                                 }
-                            }
-                        );
+                            });
                     } catch (err: any) {
                         console.error(err);
                         if (scriptedRef.current) {
