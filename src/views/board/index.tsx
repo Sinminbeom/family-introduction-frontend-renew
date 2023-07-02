@@ -1,3 +1,4 @@
+import { useState } from 'react';
 // import { useNavigate } from 'react-router-dom';
 
 // material-ui
@@ -5,25 +6,48 @@ import { useTheme } from '@mui/material/styles';
 import { Button, Grid, Stack } from '@mui/material';
 import SaveTwoToneIcon from '@mui/icons-material/SaveTwoTone';
 
+// third party
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
 import { gridSpacing } from 'store/constant';
-import ReactQuillDemo from '../form/plugins/Wysiwug/ReactQuill';
-// import { useEffect } from 'react';
+import useAuth from 'hooks/useAuth';
 
 // ==============================|| SAMPLE PAGE ||============================== //
 
-const SamplePage = () => {
+const BoardPage = () => {
     const theme = useTheme();
-
+    const [text, setText] = useState('');
+    const { user } = useAuth();
     // const navigate = useNavigate();
 
     // useEffect(() => navigate('fdfdfd'), []);
+
+    const handleTextChange = (value: string) => {
+        setText(value);
+    };
+
+    const handleClick = async () => {
+        const createBoard = await fetch('http://localhost:8080/boards', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, createUserId: user?.id, updateUserId: user?.id })
+        });
+        const results = await createBoard.json();
+        if (results.status === 200) {
+            console.log('성공');
+        } else if (results.status !== 200) {
+            console.log('실패');
+        }
+    };
+
     return (
         <MainCard
             title="게시글 작성"
             secondary={
-                <Button color="secondary" variant="contained" onClick={(event) => console.log(event)}>
+                <Button color="secondary" variant="contained" onClick={handleClick}>
                     <SaveTwoToneIcon fontSize="small" sx={{ mr: 0.75 }} />
                     저장
                 </Button>
@@ -55,10 +79,7 @@ const SamplePage = () => {
                             }
                         }}
                     >
-                        <ReactQuillDemo />
-                        <Button variant="contained" color="primary">
-                            저장
-                        </Button>
+                        <ReactQuill value={text} onChange={handleTextChange} />
                     </Stack>
                 </Grid>
             </Grid>
@@ -72,4 +93,4 @@ const SamplePage = () => {
     );
 };
 
-export default SamplePage;
+export default BoardPage;

@@ -18,10 +18,10 @@ const other = {
     type: 'group',
     children: [
         {
-            id: 'sample-page',
-            title: <FormattedMessage id="sample-page" />,
+            id: 'board',
+            title: <FormattedMessage id="board" />,
             type: 'item',
-            url: '/sample-page',
+            url: '/board',
             icon: icons.IconBrandChrome,
             breadcrumbs: false
         },
