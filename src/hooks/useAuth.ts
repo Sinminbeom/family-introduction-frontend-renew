@@ -1,9 +1,10 @@
 import { useContext } from 'react';
 
 // auth provider
-import AuthContext from 'contexts/FirebaseContext';
+// import AuthContext from 'contexts/FirebaseContext';
 // import AuthContext from 'contexts/Auth0Context';
 // import AuthContext from 'contexts/JWTContext';
+import AuthContext from 'contexts/UserContext';
 
 // ==============================|| AUTH HOOKS ||============================== //
 

@@ -22,6 +22,7 @@ import Snackbar from 'ui-component/extended/Snackbar';
 import { FirebaseProvider } from 'contexts/FirebaseContext';
 // import { JWTProvider } from 'contexts/JWTContext';
 // import { Auth0Provider } from 'contexts/Auth0Context';
+import { UserProvider } from 'contexts/UserContext';
 
 declare module '@mui/styles/defaultTheme' {
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -42,10 +43,12 @@ const App = () => {
                 <Locales>
                     <NavigationScroll>
                         <FirebaseProvider>
-                            <>
-                                <Routes />
-                                <Snackbar />
-                            </>
+                            <UserProvider>
+                                <>
+                                    <Routes />
+                                    <Snackbar />
+                                </>
+                            </UserProvider>
                         </FirebaseProvider>
                     </NavigationScroll>
                 </Locales>
