@@ -6,6 +6,7 @@ import Loadable from 'ui-component/Loadable';
 import AuthGuard from 'utils/route-guard/AuthGuard';
 
 // sample page routing
+const SaveBoardPage = Loadable(lazy(() => import('views/board/SaveBoard')));
 const BoardPage = Loadable(lazy(() => import('views/board')));
 const ReadBoardPage = Loadable(lazy(() => import('views/board/ReadBoard')));
 
@@ -20,8 +21,12 @@ const MainRoutes = {
     ),
     children: [
         {
-            path: '/board',
+            path: '/boards',
             element: <BoardPage />
+        },
+        {
+            path: '/board',
+            element: <SaveBoardPage />
         },
         {
             path: '/board/:boardId',
