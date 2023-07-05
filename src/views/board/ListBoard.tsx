@@ -32,12 +32,12 @@ import Avatar from 'ui-component/extended/Avatar';
 
 // ==============================|| USER LIST 1 ||============================== //
 
-interface Board {
-    id: number;
-    title: string;
-    text: string;
-    status: string;
-    createUserName: string;
+export interface Board {
+    id?: number;
+    title?: string;
+    text?: string;
+    status?: string;
+    createUserName?: string;
 }
 
 const UserList = () => {

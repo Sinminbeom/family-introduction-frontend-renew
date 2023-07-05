@@ -1,9 +1,9 @@
-import { useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom'; // useNavigate
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import { Button, Grid, Stack } from '@mui/material';
+import { Button, Grid, Stack, TextField } from '@mui/material';
 import SaveTwoToneIcon from '@mui/icons-material/SaveTwoTone';
 
 // third party
@@ -19,28 +19,65 @@ import useAuth from 'hooks/useAuth';
 
 const BoardPage = () => {
     const theme = useTheme();
+    const [id, setId] = useState<number>();
     const [text, setText] = useState('');
+    const [title, setTitle] = useState('');
     const { user } = useAuth();
+    const { state }: { state: any } = useLocation();
     // const navigate = useNavigate();
 
-    // useEffect(() => navigate('fdfdfd'), []);
+    const fetchData = useCallback(async () => {
+        const getBoard = await fetch(`http://localhost:8080/boards/${state.id}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const results = await getBoard.json();
+        if (results.status === 200) {
+            setId(results.data.id);
+            setText(results.data.text);
+            setTitle(results.data.title);
+        } else if (results.status !== 200) {
+            console.log('실패');
+        }
+    }, [state]);
+
+    useEffect(() => {
+        if (state !== null) {
+            fetchData();
+        }
+    }, [state, fetchData]);
 
     const handleTextChange = (value: string) => {
         setText(value);
     };
 
     const handleClick = async () => {
-        const createBoard = await fetch('http://localhost:8080/boards', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text, createUserId: user?.id, updateUserId: user?.id })
-        });
-        const results = await createBoard.json();
-        if (results.status === 200) {
-            console.log('성공');
-        } else if (results.status !== 200) {
-            console.log('실패');
+        if (id === undefined || id === null) {
+            const createBoard = await fetch('http://localhost:8080/boards', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, text, createUserId: user?.id, updateUserId: user?.id })
+            });
+            const results = await createBoard.json();
+            if (results.status === 200) {
+                console.log('성공');
+            } else if (results.status !== 200) {
+                console.log('실패');
+            }
+        } else {
+            const updateBoard = await fetch('http://localhost:8080/boards', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, text, createUserId: user?.id, updateUserId: user?.id })
+            });
+            const results = await updateBoard.json();
+            if (results.status === 200) {
+                console.log('성공');
+            } else if (results.status !== 200) {
+                console.log('실패');
+            }
         }
+
     };
 
     return (
@@ -79,6 +116,7 @@ const BoardPage = () => {
                             }
                         }}
                     >
+                        <TextField id="outlined-required" label="title" value={title} onChange={(event) => setTitle(event.target.value)} />
                         <ReactQuill value={text} onChange={handleTextChange} />
                     </Stack>
                 </Grid>

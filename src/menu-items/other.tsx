@@ -21,7 +21,7 @@ const other = {
             id: 'board',
             title: <FormattedMessage id="board" />,
             type: 'item',
-            url: '/board',
+            url: '/boards',
             icon: icons.IconBrandChrome,
             breadcrumbs: false
         },
