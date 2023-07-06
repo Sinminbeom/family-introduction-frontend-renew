@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useLocation } from 'react-router-dom'; // useNavigate
+import { useLocation, useNavigate } from 'react-router-dom';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -32,7 +32,7 @@ const BoardPage = () => {
     const { user } = useAuth();
     const { state }: { state: any } = useLocation();
     const quillRef = useRef<ReactQuill>(null);
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
 
     const fetchData = useCallback(async () => {
         const getBoard = await fetch(`http://localhost:8080/board/${state.id}`, {
@@ -62,7 +62,7 @@ const BoardPage = () => {
 
     const handleClick = async () => {
         if (id === undefined || id === null) {
-            const createBoard = await fetch('http://localhost:8080/boards', {
+            const createBoard = await fetch('http://localhost:8080/board', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title, text, createUserId: user?.id, updateUserId: user?.id })
@@ -70,11 +70,12 @@ const BoardPage = () => {
             const results = await createBoard.json();
             if (results.status === 200) {
                 console.log('성공');
+                navigate(`/board/${results.data.id}`);
             } else if (results.status !== 200) {
                 console.log('실패');
             }
         } else {
-            const updateBoard = await fetch('http://localhost:8080/boards', {
+            const updateBoard = await fetch(`http://localhost:8080/board/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title, text, createUserId: user?.id, updateUserId: user?.id })

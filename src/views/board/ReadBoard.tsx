@@ -18,8 +18,6 @@ import { Board } from './ListBoard';
 
 const ReadeBoardPage = () => {
     // const theme = useTheme();
-    const [text, setText] = useState('');
-    const [title, setTitle] = useState('');
     const [board, setBoard] = useState<Board>({});
     // const { user } = useAuth();
     const { boardId } = useParams();
@@ -33,26 +31,32 @@ const ReadeBoardPage = () => {
         const results = await getBoard.json();
         if (results.status === 200) {
             setBoard({ id: results.data.id, title: results.data.title, text: results.data.text });
-            setText(results.data.text);
-            setTitle(results.data.title);
-            const sanitizedText = document.createElement('div');
-            sanitizedText.textContent = text;
         } else if (results.status !== 200) {
             console.log('실패');
         }
-    }, [text, boardId]);
+    }, [boardId]);
 
     useEffect(() => {
         fetchData();
     }, [fetchData]);
 
-    const handleDelete = () => {
-        console.log('fdfd');
+    const handleDelete = async () => {
+        const deleteBoard = await fetch(`http://localhost:8080/board/${boardId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const results = await deleteBoard.json();
+        if (results.status === 200) {
+            console.log('성공');
+            navigate('/boards');
+        } else if (results.status !== 200) {
+            console.log('실패');
+        }
     };
 
     return (
         <MainCard
-            title={title}
+            title={board.title}
             secondary={
                 <Grid container spacing={2}>
                     <Grid item>
@@ -76,7 +80,7 @@ const ReadeBoardPage = () => {
             <Grid container spacing={gridSpacing}>
                 <Grid item xs={12}>
                     <Stack spacing={gridSpacing}>
-                        <div dangerouslySetInnerHTML={{ __html: text }} />
+                        <div dangerouslySetInnerHTML={{ __html: board.text! }} />
                     </Stack>
                 </Grid>
             </Grid>
