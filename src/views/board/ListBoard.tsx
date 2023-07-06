@@ -38,6 +38,7 @@ export interface Board {
     text?: string;
     status?: string;
     createUserName?: string;
+    email?: string;
 }
 
 const UserList = () => {
@@ -89,7 +90,7 @@ const UserList = () => {
                                                 )} */}
                                             </Typography>
                                             <Typography align="left" variant="subtitle2" noWrap>
-                                                {row.title}
+                                                {row.email}
                                             </Typography>
                                         </Grid>
                                     </Grid>

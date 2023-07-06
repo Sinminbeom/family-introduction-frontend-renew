@@ -4,7 +4,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 // material-ui
 // import { useTheme } from '@mui/material/styles';
 import { Grid, Stack, Button } from '@mui/material';
-import SaveTwoToneIcon from '@mui/icons-material/SaveTwoTone';
+import EditSharpIcon from '@mui/icons-material/EditSharp';
+import ListSharpIcon from '@mui/icons-material/ListSharp';
+import DeleteSharpIcon from '@mui/icons-material/DeleteSharp';
 
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
@@ -24,7 +26,7 @@ const ReadeBoardPage = () => {
     const navigate = useNavigate();
 
     const fetchData = useCallback(async () => {
-        const getBoard = await fetch(`http://localhost:8080/boards/${boardId}`, {
+        const getBoard = await fetch(`http://localhost:8080/board/${boardId}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -44,14 +46,31 @@ const ReadeBoardPage = () => {
         fetchData();
     }, [fetchData]);
 
+    const handleDelete = () => {
+        console.log('fdfd');
+    };
+
     return (
         <MainCard
             title={title}
             secondary={
-                <Button color="secondary" variant="contained" onClick={() => navigate('/board', { state: board })}>
-                    <SaveTwoToneIcon fontSize="small" sx={{ mr: 0.75 }} />
-                    수정
-                </Button>
+                <Grid container spacing={2}>
+                    <Grid item>
+                        <Button color="primary" variant="contained" onClick={() => navigate('/board', { state: board })}>
+                            <EditSharpIcon fontSize="small" sx={{ mr: 0.75 }} />
+                        </Button>
+                    </Grid>
+                    <Grid item>
+                        <Button color="primary" variant="contained" onClick={handleDelete}>
+                            <DeleteSharpIcon fontSize="small" sx={{ mr: 0.75 }} />
+                        </Button>
+                    </Grid>
+                    <Grid item>
+                        <Button color="primary" variant="contained" onClick={() => navigate('/boards')}>
+                            <ListSharpIcon fontSize="small" sx={{ mr: 0.75 }} />
+                        </Button>
+                    </Grid>
+                </Grid>
             }
         >
             <Grid container spacing={gridSpacing}>
