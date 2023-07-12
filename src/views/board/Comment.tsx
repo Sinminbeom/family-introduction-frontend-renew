@@ -1,94 +1,346 @@
-import React, { useState, useEffect } from 'react';
-// import { useSelector } from 'react-redux';
-import SingleComment from './SingleComment';
-import ReplyComment from './ReplyComment';
-import { PostServiceComponent } from '../service/ServiceComponent';
-import { Button, Input } from '@mui/material';
+import React from 'react';
 
-const Comment = (props: any) => {
-    const videoId = props.postId;
-    const [CommentValue, setCommentValue] = useState('');
-    // const user = useSelector((state) => state.user);
+// material-ui
+import { useTheme } from '@mui/material/styles';
+import {
+    Box,
+    Button,
+    ButtonBase,
+    Card,
+    Collapse,
+    FormHelperText,
+    Grid,
+    InputAdornment,
+    Menu,
+    MenuItem,
+    Stack,
+    TextField,
+    Typography,
+    useMediaQuery
+} from '@mui/material';
 
-    const handleChange = (event) => {
-        setCommentValue(event.currentTarget.value);
-    };
+// third-party
+import * as yup from 'yup';
+import uniqueId from 'lodash/uniqueId';
+import { Controller, FormProvider, useForm, useFormContext } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
+// project imports
+import Reply from './Reply';
+import Avatar from 'ui-component/extended/Avatar';
+import AnimateButton from 'ui-component/extended/AnimateButton';
+import { Comment as CommentProps, CommentData, PostProps, Profile } from '_mockApis/user-profile/types';
 
-    const CallBack = (result) => {
-        if(!result[0].Status){
-            setCommentValue(''); //저장후 빈칸으로 만들기 위해
-        }
-        else{
-            alert(result.Message);
-        }
+// assets
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
+import ThumbUpAltTwoToneIcon from '@mui/icons-material/ThumbUpAltTwoTone';
+import ReplyTwoToneIcon from '@mui/icons-material/ReplyTwoTone';
+import AttachmentRoundedIcon from '@mui/icons-material/AttachmentRounded';
+import { FormInputProps } from 'types';
+
+const avatarImage = require.context('assets/images/profile', true);
+
+const validationSchema = yup.object().shape({
+    name: yup.string().required('Reply Field is Required')
+});
+
+// ==============================|| COMMENT TEXTFIELD ||============================== //
+
+const FormInput = ({ bug, label, name, required, ...others }: FormInputProps) => {
+    const { control } = useFormContext();
+
+    let isError = false;
+    let errorMessage = '';
+    if (bug && Object.prototype.hasOwnProperty.call(bug, name)) {
+        isError = true;
+        errorMessage = bug[name].message;
     }
-  
-  const onsubmit = (event: any) => {
-    event.preventDefault();
 
-    const formData = new FormData();
-
-    if (!CommentValue) {
-        return alert('댓글 내용을 입력해주세요.');
-    }
-
-    const userSessionStorage = sessionStorage.getItem('user');
-    if (userSessionStorage) {
-        const userJson = JSON.parse(userSessionStorage);
-        formData.append('BoardSeq',props.postSeq);
-        formData.append('BoardCommentContent',CommentValue);
-        formData.append('userSeq', userJson.id);
-    }
-
-    PostServiceComponent('http://49.168.71.214:8000/CommentSave.php',formData,CallBack);
+    return (
+        <>
+            <Controller
+                as={TextField}
+                name={name}
+                control={control}
+                defaultValue=""
+                label={label}
+                fullWidth
+                InputLabelProps={{
+                    className: required ? 'required-label' : '',
+                    required: required || false
+                }}
+                error={isError}
+                {...others}
+            />
+            {errorMessage && (
+                <Grid item xs={12}>
+                    <FormHelperText error>{errorMessage}</FormHelperText>
+                </Grid>
+            )}
+        </>
+    );
 };
 
-  return (
-    <div>
-      <br />
-      <p>Replies</p>
-      <hr />
-
-      {/* Comment Lists */}
-      {props.commentList &&
-        props.commentList.map(
-          (comment, index) =>
-            !comment.UpCommentSeq && ( //대댓글은 우선 숨기겠다는 의미
-              <React.Fragment>
-                <SingleComment
-                  refreshFunction={props.refreshFunction}
-                  comment={comment}
-                  postSeq={props.postSeq}
-                  key={index}
-                />
-                <ReplyComment
-                  refreshFunction={props.refreshFunction}
-                  commentList={props.commentList}
-                  parentCommentId={comment.BoardCommentSeq}
-                  postSeq={props.postSeq}
-                  key={index}
-                />
-              </React.Fragment>
-              
-            )
-        )}
-      {/* Root Comment Form */}
-
-      <form style={{ display: 'flex' }} onSubmit={onsubmit}>
-        <Input
-          style={{ width: '100%', borderRadius: '5px' }}
-          onChange={handleChange}
-          value={CommentValue}
-          placeholder="내용을 작성해 주세요"
-        />
-        <br />
-        <Button style={{ width: '30%', height: '52px' }} onClick={onsubmit}>
-          등록
-        </Button>
-      </form>
-    </div>
-  );
+export interface CommentComponentProps {
+    comment: CommentProps;
+    postId: string;
+    handleReplayLikes: PostProps['handleReplayLikes'];
+    handleCommentLikes: PostProps['handleCommentLikes'];
+    replyAdd: PostProps['replyAdd'];
+    user: Profile;
 }
+
+// ==============================|| SOCIAL PROFILE - COMMENT ||============================== //
+
+const Comment = ({ comment, handleCommentLikes, handleReplayLikes, postId, replyAdd, user }: CommentComponentProps) => {
+    const theme = useTheme();
+    const matchesXS = useMediaQuery(theme.breakpoints.down('md'));
+
+    const [anchorEl, setAnchorEl] = React.useState<Element | ((element: Element) => Element) | null | undefined>(null);
+    const handleClick = (event: React.MouseEvent) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const [openReply, setOpenReply] = React.useState(false);
+    const handleChangeReply = () => {
+        setOpenReply((prev) => !prev);
+    };
+
+    let repliesResult: React.ReactElement[] | React.ReactElement = <></>;
+    if (Object.keys(comment).length > 0 && comment.data?.replies && comment.data?.replies.length) {
+        repliesResult = comment.data?.replies.map((reply, index) => (
+            <Reply
+                postId={postId}
+                commentId={comment.id}
+                key={index}
+                onReply={handleChangeReply}
+                reply={reply}
+                handleReplayLikes={handleReplayLikes}
+            />
+        ));
+    }
+
+    const methods = useForm({
+        resolver: yupResolver(validationSchema)
+    });
+
+    const { handleSubmit, errors, reset } = methods;
+    const onSubmit = async (reply: CommentData) => {
+        handleChangeReply();
+        const replyId = uniqueId('#REPLY_');
+        const newReply = {
+            id: replyId,
+            profile: user,
+            data: {
+                comment: reply.name,
+                likes: {
+                    like: false,
+                    value: 0
+                },
+                replies: []
+            }
+        };
+
+        replyAdd(postId, comment.id, newReply);
+        reset({ name: '' });
+    };
+
+    return (
+        <>
+            {Object.keys(comment).length > 0 && (
+                <Grid item xs={12}>
+                    <Card
+                        sx={{
+                            background: theme.palette.mode === 'dark' ? theme.palette.dark.main : theme.palette.grey[50],
+                            padding: '16px 16px 8px',
+                            mt: 1.25
+                        }}
+                    >
+                        <Grid container spacing={1}>
+                            <Grid item xs={12}>
+                                <Grid container wrap="nowrap" alignItems="center" spacing={1}>
+                                    <Grid item>
+                                        <Avatar
+                                            sx={{ width: 24, height: 24 }}
+                                            size="sm"
+                                            alt="User 1"
+                                            src={
+                                                comment.profile &&
+                                                comment.profile.avatar &&
+                                                avatarImage(`./${comment.profile.avatar}`).default
+                                            }
+                                        />
+                                    </Grid>
+                                    <Grid item xs zeroMinWidth>
+                                        <Grid container alignItems="center" spacing={1}>
+                                            <Grid item>
+                                                <Typography align="left" variant="h5" component="div">
+                                                    {comment.profile.name}
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item>
+                                                <Typography align="left" variant="caption">
+                                                    <FiberManualRecordIcon
+                                                        sx={{ width: '10px', height: '10px', opacity: 0.5, m: '0 5px' }}
+                                                    />{' '}
+                                                    {comment.profile.time}
+                                                </Typography>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                    <Grid item>
+                                        <ButtonBase sx={{ borderRadius: '12px' }}>
+                                            <Avatar
+                                                variant="rounded"
+                                                sx={{
+                                                    ...theme.typography.commonAvatar,
+                                                    ...theme.typography.smallAvatar,
+                                                    background:
+                                                        theme.palette.mode === 'dark'
+                                                            ? theme.palette.dark.main
+                                                            : theme.palette.secondary.light,
+                                                    color:
+                                                        theme.palette.mode === 'dark'
+                                                            ? theme.palette.dark.light
+                                                            : theme.palette.secondary.dark,
+                                                    zIndex: 1,
+                                                    transition: 'all .2s ease-in-out',
+                                                    '&[aria-controls="menu-list-grow"],&:hover': {
+                                                        background: theme.palette.secondary.main,
+                                                        color: theme.palette.secondary.light
+                                                    }
+                                                }}
+                                                aria-controls="menu-comment"
+                                                aria-haspopup="true"
+                                                onClick={handleClick}
+                                            >
+                                                <MoreVertTwoToneIcon fontSize="inherit" />
+                                            </Avatar>
+                                        </ButtonBase>
+                                        <Menu
+                                            id="menu-comment"
+                                            anchorEl={anchorEl}
+                                            keepMounted
+                                            open={Boolean(anchorEl)}
+                                            onClose={handleClose}
+                                            variant="selectedMenu"
+                                            anchorOrigin={{
+                                                vertical: 'bottom',
+                                                horizontal: 'right'
+                                            }}
+                                            transformOrigin={{
+                                                vertical: 'top',
+                                                horizontal: 'right'
+                                            }}
+                                        >
+                                            <MenuItem onClick={handleClose}>Edit</MenuItem>
+                                            <MenuItem onClick={handleClose}>Delete</MenuItem>
+                                        </Menu>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                            <Grid item xs={12} sx={{ '&.MuiGrid-root': { pt: 1.5 } }}>
+                                <Typography align="left" variant="body2">
+                                    {comment.data?.comment}
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Stack direction="row" spacing={2} sx={{ color: theme.palette.mode === 'dark' ? 'grey.700' : 'grey.800' }}>
+                                    <Button
+                                        onClick={() => handleCommentLikes(postId, comment.id)}
+                                        variant="text"
+                                        color="inherit"
+                                        size="small"
+                                        startIcon={
+                                            <ThumbUpAltTwoToneIcon
+                                                color={comment.data?.likes && comment.data?.likes.like ? 'secondary' : 'inherit'}
+                                            />
+                                        }
+                                    >
+                                        {comment.data?.likes && comment.data?.likes.value ? comment.data?.likes.value : 0} likes
+                                    </Button>
+                                    <Button
+                                        variant="text"
+                                        onClick={handleChangeReply}
+                                        color="inherit"
+                                        size="small"
+                                        startIcon={<ReplyTwoToneIcon color="primary" />}
+                                    >
+                                        {comment.data?.replies ? comment.data?.replies.length : 0} reply
+                                    </Button>
+                                </Stack>
+                            </Grid>
+                        </Grid>
+                    </Card>
+                </Grid>
+            )}
+            {repliesResult}
+            {/* comment - add new replay */}
+            <Collapse in={openReply} sx={{ width: '100%' }}>
+                <Grid item xs={12} sx={{ pl: { xs: 1, sm: 3 }, pt: 3 }}>
+                    <Box
+                        sx={{
+                            ml: 4.25,
+                            [theme.breakpoints.down('md')]: {
+                                ml: 0
+                            }
+                        }}
+                    >
+                        <form onSubmit={handleSubmit(onSubmit)}>
+                            <Grid container spacing={2} alignItems="flex-start">
+                                <Grid item sx={{ display: { xs: 'none', sm: 'block' } }}>
+                                    <Avatar
+                                        sx={{ mt: 1.5 }}
+                                        alt="User 1"
+                                        src={
+                                            comment.profile && comment.profile.avatar && avatarImage(`./${comment.profile.avatar}`).default
+                                        }
+                                    />
+                                </Grid>
+                                <Grid item xs zeroMinWidth sx={{ mt: 1 }}>
+                                    <FormProvider {...methods}>
+                                        <FormInput
+                                            fullWidth
+                                            name="name"
+                                            label="Write a reply..."
+                                            size={matchesXS ? 'small' : 'medium'}
+                                            bug={errors}
+                                            InputProps={{
+                                                label: 'Write a reply...',
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <AttachmentRoundedIcon fontSize="small" />
+                                                    </InputAdornment>
+                                                )
+                                            }}
+                                        />
+                                    </FormProvider>
+                                </Grid>
+                                <Grid item>
+                                    <AnimateButton>
+                                        <Button
+                                            type="submit"
+                                            variant="contained"
+                                            color="secondary"
+                                            size={matchesXS ? 'small' : 'large'}
+                                            sx={{ mt: 1.5 }}
+                                        >
+                                            Reply
+                                        </Button>
+                                    </AnimateButton>
+                                </Grid>
+                            </Grid>
+                        </form>
+                    </Box>
+                </Grid>
+            </Collapse>
+        </>
+    );
+};
 
 export default Comment;
