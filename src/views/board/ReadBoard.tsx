@@ -4,11 +4,11 @@ import { Controller, FormProvider, useForm } from 'react-hook-form';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import { Grid, Stack, Button, Typography, Collapse, FormHelperText, TextField, useMediaQuery } from '@mui/material';
+import { Grid, Stack, Button, Collapse, FormHelperText, TextField, useMediaQuery } from '@mui/material'; // Typography
 import EditSharpIcon from '@mui/icons-material/EditSharp';
 import ListSharpIcon from '@mui/icons-material/ListSharp';
 import DeleteSharpIcon from '@mui/icons-material/DeleteSharp';
-import ThumbUpAltTwoToneIcon from '@mui/icons-material/ThumbUpAltTwoTone';
+// import ThumbUpAltTwoToneIcon from '@mui/icons-material/ThumbUpAltTwoTone';
 import ChatBubbleTwoToneIcon from '@mui/icons-material/ChatBubbleTwoTone';
 
 // third-party
@@ -18,15 +18,15 @@ import { yupResolver } from '@hookform/resolvers/yup';
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
 import AnimateButton from 'ui-component/extended/AnimateButton';
-import { gridSpacing } from 'store/constant';
+// import { gridSpacing } from 'store/constant';
 import { Board } from './ListBoard';
-// import Comment from '../test/Comment';
 import Comment from './Comment';
 import Avatar from 'ui-component/extended/Avatar';
 // import useAuth from 'hooks/useAuth';
 import { FormInputProps } from 'types';
+// import { Reply } from '_mockApis/user-profile/types';
 
-const avatarImage = require.context('assets/images/profile', true);
+// const avatarImage = require.context('assets/images/profile', true);
 
 const validationSchema = yup.object().shape({
     name: yup.string().required('Comment Field is Required')
@@ -75,14 +75,83 @@ export interface CommentType {
     text?: string;
 }
 
+const post = {
+    id: '#1POST_JONE_DOE',
+    profile: {
+        id: '#52JONE_DOE',
+        avatar: 'user-1.png',
+        name: 'John Doe',
+        time: '15 min ago'
+    },
+    data: {
+        content:
+            'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. There are many variations of passages.',
+        comments: [
+            {
+                id: '#3COMMENT_JONE_DOE',
+                profile: {
+                    id: '#52JONE_DOE',
+                    avatar: 'user-3.png',
+                    name: 'Barney Thea',
+                    time: '8 min ago '
+                },
+                data: {
+                    comment: 'It is a long established fact that a reader will be distracted by the readable content of a page.',
+                    likes: {
+                        like: true,
+                        value: 55
+                    }
+                }
+            },
+            {
+                id: '#2COMMENT_JONE_DOE',
+                profile: {
+                    id: '#52JONE_DOE',
+                    avatar: 'user-4.png',
+                    name: 'Maddison Wilber',
+                    time: '5 min ago '
+                },
+                data: {
+                    comment:
+                        'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.There are many variations of passages.',
+                    likes: {
+                        like: false,
+                        value: 68
+                    },
+                    replies: [
+                        {
+                            id: '#1REPLY_JONE_DOE',
+                            profile: {
+                                id: '#52JONE_DOE',
+                                avatar: 'user-5.png',
+                                name: 'John Doe',
+                                time: 'just now '
+                            },
+                            data: {
+                                comment: 'It is a long established fact that a reader will be distracted by the readable content.',
+                                likes: {
+                                    like: true,
+                                    value: 10
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+};
+
 const ReadeBoardPage = () => {
     const theme = useTheme();
     const [board, setBoard] = useState<Board>({});
-    const [comments, setComments] = useState<CommentType[]>([]);
+    // const [comments, setComments] = useState<CommentType[]>([]);
     // const { user } = useAuth();
     const { boardId } = useParams();
     const navigate = useNavigate();
     const matchesXS = useMediaQuery(theme.breakpoints.down('md'));
+    const { data, profile } = post;
+    const [openComment, setOpenComment] = useState(!(data.comments && data.comments.length > 0));
 
     const getBoardData = useCallback(async () => {
         const getBoard = await fetch(`http://localhost:8080/boards/${boardId}`, {
@@ -98,16 +167,16 @@ const ReadeBoardPage = () => {
     }, [boardId]);
 
     const getCommentsData = useCallback(async () => {
-        const getComments = await fetch(`http://localhost:8080/boards/${boardId}/comments`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        const results = await getComments.json();
-        if (results.status === 200) {
-            setComments(results.data);
-        } else if (results.status !== 200) {
-            console.log('실패');
-        }
+        // const getComments = await fetch(`http://localhost:8080/boards/${boardId}/comments`, {
+        //     method: 'GET',
+        //     headers: { 'Content-Type': 'application/json' }
+        // });
+        // const results = await getComments.json();
+        // if (results.status === 200) {
+        //     // setComments(results.data);
+        // } else if (results.status !== 200) {
+        //     console.log('실패');
+        // }
     }, [boardId]);
 
     useEffect(() => {
@@ -129,12 +198,6 @@ const ReadeBoardPage = () => {
         }
     };
 
-    const refreshFunction = (newComment: any) => {
-        // 부모의 Comments state값을 업데이트하기위한 함수
-        setComments((_comments) => _comments.concat(newComment));
-        // this.setState({ comments: this.state.Comments.concat(newComment)}); //자식들한테 값을 전달받아 Comments값 업데이트
-    };
-
     let commentsResult:
         | React.ReactElement<any, string | React.JSXElementConstructor<any>>
         | React.ReactElement<any, string | React.JSXElementConstructor<any>>[] = <></>;
@@ -142,21 +205,26 @@ const ReadeBoardPage = () => {
     if (data && data.comments) {
         commentsResult = data.comments.map((comment, index) => (
             <Comment
-                postId={id}
+                boardId={boardId!}
                 comment={comment}
                 key={comment.id}
                 user={profile}
-                replyAdd={replyAdd}
-                handleCommentLikes={handleCommentLikes}
-                handleReplayLikes={handleReplayLikes}
+                // replyAdd={replyAdd}
+                // handleCommentLikes={handleCommentLikes}
+                // handleReplayLikes={handleReplayLikes}
             />
         ));
     }
+    const handleChangeComment = () => {
+        setOpenComment((prev) => !prev);
+    };
 
     const methods = useForm({
         resolver: yupResolver(validationSchema)
     });
+    const { errors } = methods;
 
+    // const replyAdd = async (postId: string, commentId: string, reply: Reply) => {};
     return (
         <MainCard
             title={board.title}
@@ -180,12 +248,9 @@ const ReadeBoardPage = () => {
                 </Grid>
             }
         >
-            <Grid container spacing={gridSpacing}>
+            <Grid container spacing={1}>
                 <Grid item xs={12}>
-                    <Stack spacing={gridSpacing}>
-                        <div dangerouslySetInnerHTML={{ __html: board.text! }} />
-                        <Comment boardId={boardId} commentList={comments} refreshFunction={refreshFunction} />
-                    </Stack>
+                    <div dangerouslySetInnerHTML={{ __html: board.text! }} />
                 </Grid>
                 <Grid item xs={12}>
                     <Grid
@@ -198,21 +263,7 @@ const ReadeBoardPage = () => {
                         <Grid item>
                             <Stack direction="row" spacing={2}>
                                 <Button
-                                    variant="text"
-                                    // onClick={() => handlePostLikes(id)}
-                                    color="inherit"
-                                    size="small"
-                                    startIcon={
-                                        <ThumbUpAltTwoToneIcon color={data && data.likes && data.likes.like ? 'primary' : 'inherit'} />
-                                    }
-                                >
-                                    {data && data.likes && data.likes.value ? data.likes.value : 0}
-                                    <Typography color="inherit" sx={{ fontWeight: 500, ml: 0.5, display: { xs: 'none', sm: 'block' } }}>
-                                        likes
-                                    </Typography>
-                                </Button>
-                                <Button
-                                    // onClick={handleChangeComment}
+                                    onClick={handleChangeComment}
                                     size="small"
                                     variant="text"
                                     color="inherit"
@@ -227,13 +278,14 @@ const ReadeBoardPage = () => {
                 {/* add new comment */}
                 <Collapse in={openComment} sx={{ width: '100%' }}>
                     <Grid item xs={12} sx={{ pt: 2 }}>
-                        <form onSubmit={handleSubmit(onSubmit)}>
+                        <form onSubmit={() => console.log('fdfd')}>
                             <Grid container spacing={2} alignItems="flex-start">
                                 <Grid item sx={{ display: { xs: 'none', sm: 'block' } }}>
                                     <Avatar
                                         sx={{ mt: 0.75 }}
                                         alt="User 1"
-                                        src={profile.avatar && avatarImage(`./${profile.avatar}`).default}
+                                        // TODO: 회원가입시 이미지 넣으면 추가
+                                        // src={profile.avatar && avatarImage(`./${profile.avatar}`).default}
                                         size="xs"
                                     />
                                 </Grid>

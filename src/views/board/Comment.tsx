@@ -21,7 +21,7 @@ import {
 
 // third-party
 import * as yup from 'yup';
-import uniqueId from 'lodash/uniqueId';
+// import uniqueId from 'lodash/uniqueId';
 import { Controller, FormProvider, useForm, useFormContext } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -29,7 +29,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import Reply from './Reply';
 import Avatar from 'ui-component/extended/Avatar';
 import AnimateButton from 'ui-component/extended/AnimateButton';
-import { Comment as CommentProps, CommentData, PostProps, Profile } from '_mockApis/user-profile/types';
+import { Comment as CommentProps, CommentData, Profile } from '_mockApis/user-profile/types'; // PostProps
 
 // assets
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
@@ -84,16 +84,16 @@ const FormInput = ({ bug, label, name, required, ...others }: FormInputProps) =>
 
 export interface CommentComponentProps {
     comment: CommentProps;
-    postId: string;
-    handleReplayLikes: PostProps['handleReplayLikes'];
-    handleCommentLikes: PostProps['handleCommentLikes'];
-    replyAdd: PostProps['replyAdd'];
+    boardId: string;
+    // handleReplayLikes: PostProps['handleReplayLikes'];
+    // handleCommentLikes: PostProps['handleCommentLikes'];
+    // replyAdd: PostProps['replyAdd'];
     user: Profile;
 }
 
 // ==============================|| SOCIAL PROFILE - COMMENT ||============================== //
 
-const Comment = ({ comment, handleCommentLikes, handleReplayLikes, postId, replyAdd, user }: CommentComponentProps) => {
+const Comment = ({ comment, boardId, user }: CommentComponentProps) => {
     const theme = useTheme();
     const matchesXS = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -110,12 +110,13 @@ const Comment = ({ comment, handleCommentLikes, handleReplayLikes, postId, reply
     const handleChangeReply = () => {
         setOpenReply((prev) => !prev);
     };
+    const handleReplayLikes = () => {};
 
     let repliesResult: React.ReactElement[] | React.ReactElement = <></>;
     if (Object.keys(comment).length > 0 && comment.data?.replies && comment.data?.replies.length) {
         repliesResult = comment.data?.replies.map((reply, index) => (
             <Reply
-                postId={postId}
+                postId={boardId}
                 commentId={comment.id}
                 key={index}
                 onReply={handleChangeReply}
@@ -132,21 +133,20 @@ const Comment = ({ comment, handleCommentLikes, handleReplayLikes, postId, reply
     const { handleSubmit, errors, reset } = methods;
     const onSubmit = async (reply: CommentData) => {
         handleChangeReply();
-        const replyId = uniqueId('#REPLY_');
-        const newReply = {
-            id: replyId,
-            profile: user,
-            data: {
-                comment: reply.name,
-                likes: {
-                    like: false,
-                    value: 0
-                },
-                replies: []
-            }
-        };
-
-        replyAdd(postId, comment.id, newReply);
+        // const replyId = uniqueId('#REPLY_');
+        // const newReply = {
+        //     id: replyId,
+        //     profile: user,
+        //     data: {
+        //         comment: reply.name,
+        //         likes: {
+        //             like: false,
+        //             value: 0
+        //         },
+        //         replies: []
+        //     }
+        // };
+        // replyAdd(boardId, comment.id, newReply);
         reset({ name: '' });
     };
 
@@ -252,7 +252,8 @@ const Comment = ({ comment, handleCommentLikes, handleReplayLikes, postId, reply
                             <Grid item xs={12}>
                                 <Stack direction="row" spacing={2} sx={{ color: theme.palette.mode === 'dark' ? 'grey.700' : 'grey.800' }}>
                                     <Button
-                                        onClick={() => handleCommentLikes(postId, comment.id)}
+                                        // handleCommentLikes(boardId, comment.id)
+                                        onClick={() => console.log('fdfd')}
                                         variant="text"
                                         color="inherit"
                                         size="small"
@@ -297,9 +298,9 @@ const Comment = ({ comment, handleCommentLikes, handleReplayLikes, postId, reply
                                     <Avatar
                                         sx={{ mt: 1.5 }}
                                         alt="User 1"
-                                        src={
-                                            comment.profile && comment.profile.avatar && avatarImage(`./${comment.profile.avatar}`).default
-                                        }
+                                        // src={
+                                        //     comment.profile && comment.profile.avatar && avatarImage(`./${comment.profile.avatar}`).default
+                                        // }
                                     />
                                 </Grid>
                                 <Grid item xs zeroMinWidth sx={{ mt: 1 }}>
