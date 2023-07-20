@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
+import ReactHtmlParser from 'react-html-parser';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -22,9 +23,9 @@ import AnimateButton from 'ui-component/extended/AnimateButton';
 import { Board } from './ListBoard';
 import Comment from './Comment';
 import Avatar from 'ui-component/extended/Avatar';
-// import useAuth from 'hooks/useAuth';
+import useAuth from 'hooks/useAuth';
 import { FormInputProps } from 'types';
-// import { Reply } from '_mockApis/user-profile/types';
+import { CommentData, Post, Reply } from '_mockApis/user-profile/types';
 
 // const avatarImage = require.context('assets/images/profile', true);
 
@@ -67,94 +68,21 @@ const FormInput = ({ bug, label, size, fullWidth = true, name, required, ...othe
     );
 };
 
-// ==============================|| SAMPLE PAGE ||============================== //
-export interface CommentType {
-    id?: number;
-    parentId?: number;
-    boardId?: number;
-    text?: string;
-}
-
-const post = {
-    id: '#1POST_JONE_DOE',
-    profile: {
-        id: '#52JONE_DOE',
-        avatar: 'user-1.png',
-        name: 'John Doe',
-        time: '15 min ago'
-    },
-    data: {
-        content:
-            'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. There are many variations of passages.',
-        comments: [
-            {
-                id: '#3COMMENT_JONE_DOE',
-                profile: {
-                    id: '#52JONE_DOE',
-                    avatar: 'user-3.png',
-                    name: 'Barney Thea',
-                    time: '8 min ago '
-                },
-                data: {
-                    comment: 'It is a long established fact that a reader will be distracted by the readable content of a page.',
-                    likes: {
-                        like: true,
-                        value: 55
-                    }
-                }
-            },
-            {
-                id: '#2COMMENT_JONE_DOE',
-                profile: {
-                    id: '#52JONE_DOE',
-                    avatar: 'user-4.png',
-                    name: 'Maddison Wilber',
-                    time: '5 min ago '
-                },
-                data: {
-                    comment:
-                        'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.There are many variations of passages.',
-                    likes: {
-                        like: false,
-                        value: 68
-                    },
-                    replies: [
-                        {
-                            id: '#1REPLY_JONE_DOE',
-                            profile: {
-                                id: '#52JONE_DOE',
-                                avatar: 'user-5.png',
-                                name: 'John Doe',
-                                time: 'just now '
-                            },
-                            data: {
-                                comment: 'It is a long established fact that a reader will be distracted by the readable content.',
-                                likes: {
-                                    like: true,
-                                    value: 10
-                                }
-                            }
-                        }
-                    ]
-                }
-            }
-        ]
-    }
-};
+// ==============================|| ReadBoard PAGE ||============================== //
 
 const ReadeBoardPage = () => {
     const theme = useTheme();
     const [board, setBoard] = useState<Board>({});
-    // const [comments, setComments] = useState<CommentType[]>([]);
-    // const { user } = useAuth();
+    const [comments, setComments] = useState<Post>();
+    const { user } = useAuth();
     const { boardId } = useParams();
     const navigate = useNavigate();
     const matchesXS = useMediaQuery(theme.breakpoints.down('md'));
-    const { data, profile } = post;
-    const [openComment, setOpenComment] = useState(!(data.comments && data.comments.length > 0));
+    // const { data, profile } = post;
+    const [openComment, setOpenComment] = useState(!(comments?.data.comments && comments?.data.comments.length > 0));
 
     const getBoardData = useCallback(async () => {
-        const getBoard = await fetch(`http://localhost:8080/boards/${boardId}`, {
+        const getBoard = await fetch(`http://3.36.73.187:8080/boards/${boardId}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -167,16 +95,33 @@ const ReadeBoardPage = () => {
     }, [boardId]);
 
     const getCommentsData = useCallback(async () => {
-        // const getComments = await fetch(`http://localhost:8080/boards/${boardId}/comments`, {
-        //     method: 'GET',
-        //     headers: { 'Content-Type': 'application/json' }
-        // });
-        // const results = await getComments.json();
-        // if (results.status === 200) {
-        //     // setComments(results.data);
-        // } else if (results.status !== 200) {
-        //     console.log('실패');
-        // }
+        const getComments = await fetch(`http://3.36.73.187:8080/boards/${boardId}/comments`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const results = await getComments.json();
+        if (results.status === 200) {
+            setComments({
+                id: boardId,
+                profile: {
+                    id: '2',
+                    name: 'minbeom',
+                    avatar: '',
+                    time: '8 min ago'
+                },
+                data: {
+                    comments: results.data,
+                    images: [],
+                    content: '',
+                    likes: {
+                        like: true,
+                        value: 0
+                    }
+                }
+            });
+        } else if (results.status !== 200) {
+            console.log('실패');
+        }
     }, [boardId]);
 
     useEffect(() => {
@@ -185,7 +130,7 @@ const ReadeBoardPage = () => {
     }, [getBoardData, getCommentsData]);
 
     const handleDelete = async () => {
-        const deleteBoard = await fetch(`http://localhost:8080/boards/${boardId}`, {
+        const deleteBoard = await fetch(`http://3.36.73.187:8080/boards/${boardId}`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -202,13 +147,13 @@ const ReadeBoardPage = () => {
         | React.ReactElement<any, string | React.JSXElementConstructor<any>>
         | React.ReactElement<any, string | React.JSXElementConstructor<any>>[] = <></>;
 
-    if (data && data.comments) {
-        commentsResult = data.comments.map((comment, index) => (
+    if (comments?.data && comments?.data.comments) {
+        commentsResult = comments?.data.comments.map((comment: any, index: number) => (
             <Comment
                 boardId={boardId!}
                 comment={comment}
                 key={comment.id}
-                user={profile}
+                user={comments.profile}
                 // replyAdd={replyAdd}
                 // handleCommentLikes={handleCommentLikes}
                 // handleReplayLikes={handleReplayLikes}
@@ -219,10 +164,45 @@ const ReadeBoardPage = () => {
         setOpenComment((prev) => !prev);
     };
 
+    const onSubmit = async (comment: CommentData) => {
+        handleChangeComment();
+
+        const newComment: Reply = {
+            id: 'test',
+            profile: {
+                id: user!.id!,
+                name: user!.name!,
+                avatar: '',
+                time: '8 min ago'
+            },
+            data: {
+                comment: comment.name,
+                replies: []
+            },
+            boardId: boardId!
+        };
+        const saveComment = await fetch('http://3.36.73.187:8080/comments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newComment)
+        });
+        const results = await saveComment.json();
+        if (results.status === 200) {
+            setComments((prev: any) => {
+                console.log(prev);
+                return { ...prev, data: { ...prev?.data, comments: [...prev?.data?.comments?.concat(results?.data)!] } };
+            });
+        } else if (results.status !== 200) {
+            console.log('실패');
+        }
+        reset({ name: '' });
+    };
+
     const methods = useForm({
         resolver: yupResolver(validationSchema)
     });
-    const { errors } = methods;
+
+    const { handleSubmit, errors, reset } = methods;
 
     // const replyAdd = async (postId: string, commentId: string, reply: Reply) => {};
     return (
@@ -250,7 +230,8 @@ const ReadeBoardPage = () => {
         >
             <Grid container spacing={1}>
                 <Grid item xs={12}>
-                    <div dangerouslySetInnerHTML={{ __html: board.text! }} />
+                    {/* <div dangerouslySetInnerHTML={{ __html: board.text! }} /> */}
+                    {ReactHtmlParser(board.text!)}
                 </Grid>
                 <Grid item xs={12}>
                     <Grid
@@ -269,7 +250,7 @@ const ReadeBoardPage = () => {
                                     color="inherit"
                                     startIcon={<ChatBubbleTwoToneIcon color="secondary" />}
                                 >
-                                    {data.comments ? data.comments.length : 0} comments
+                                    {comments?.data.comments ? comments?.data.comments.length : 0} comments
                                 </Button>
                             </Stack>
                         </Grid>
@@ -278,7 +259,7 @@ const ReadeBoardPage = () => {
                 {/* add new comment */}
                 <Collapse in={openComment} sx={{ width: '100%' }}>
                     <Grid item xs={12} sx={{ pt: 2 }}>
-                        <form onSubmit={() => console.log('fdfd')}>
+                        <form onSubmit={handleSubmit(onSubmit)}>
                             <Grid container spacing={2} alignItems="flex-start">
                                 <Grid item sx={{ display: { xs: 'none', sm: 'block' } }}>
                                     <Avatar

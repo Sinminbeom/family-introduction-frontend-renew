@@ -106,6 +106,20 @@ const Comment = ({ comment, boardId, user }: CommentComponentProps) => {
         setAnchorEl(null);
     };
 
+    const handleDelete = async () => {
+        handleClose();
+        const deleteComment = await fetch(`http://3.36.73.187:8080/comments/${comment.id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const results = await deleteComment.json();
+        if (results.status === 200) {
+            console.log('성공');
+        } else if (results.status !== 200) {
+            console.log('실패');
+        }
+    };
+
     const [openReply, setOpenReply] = React.useState(false);
     const handleChangeReply = () => {
         setOpenReply((prev) => !prev);
@@ -238,8 +252,8 @@ const Comment = ({ comment, boardId, user }: CommentComponentProps) => {
                                                 horizontal: 'right'
                                             }}
                                         >
-                                            <MenuItem onClick={handleClose}>Edit</MenuItem>
-                                            <MenuItem onClick={handleClose}>Delete</MenuItem>
+                                            {/* <MenuItem onClick={() => {}}>Edit</MenuItem> */}
+                                            <MenuItem onClick={handleDelete}>Delete</MenuItem>
                                         </Menu>
                                     </Grid>
                                 </Grid>
@@ -259,11 +273,11 @@ const Comment = ({ comment, boardId, user }: CommentComponentProps) => {
                                         size="small"
                                         startIcon={
                                             <ThumbUpAltTwoToneIcon
-                                                color={comment.data?.likes && comment.data?.likes.like ? 'secondary' : 'inherit'}
+                                            // color={comment.data?.likes && comment.data?.likes.like ? 'secondary' : 'inherit'}
                                             />
                                         }
                                     >
-                                        {comment.data?.likes && comment.data?.likes.value ? comment.data?.likes.value : 0} likes
+                                        {/* {comment.data?.likes && comment.data?.likes.value ? comment.data?.likes.value : 0} likes */}
                                     </Button>
                                     <Button
                                         variant="text"

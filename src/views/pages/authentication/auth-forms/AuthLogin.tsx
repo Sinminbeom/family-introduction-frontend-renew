@@ -159,7 +159,7 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
                         //         }
                         //     }
                         // );
-                        await fetch('http://localhost:8080/login', {
+                        await fetch('http://3.36.73.187:8080/login', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ email: values.email, password: values.password })

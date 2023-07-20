@@ -6,7 +6,7 @@ import { Box, Button, ButtonBase, Card, Grid, Menu, MenuItem, Stack, Typography 
 
 // project imports
 import Avatar from 'ui-component/extended/Avatar';
-import { CommentData, UserProfile } from '_mockApis/user-profile/types';
+import { Reply } from '_mockApis/user-profile/types'; // CommentData, UserProfile
 
 // assets
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
@@ -21,7 +21,7 @@ export interface ReplyProps {
     handleReplayLikes: (i: string, j: string, k: string) => void;
     onReply: () => void;
     postId: string;
-    reply: { id: string; profile: UserProfile; data: CommentData };
+    reply: Reply;
 }
 
 // ==============================|| POST & COMMENT - REPLAY ||============================== //

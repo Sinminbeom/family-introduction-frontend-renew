@@ -48,7 +48,7 @@ const UserList = () => {
     const navigate = useNavigate();
 
     const getData = async () => {
-        const response = await fetch('http://localhost:8080/boards', {
+        const response = await fetch('http://3.36.73.187:8080/boards', {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });

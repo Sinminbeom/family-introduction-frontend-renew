@@ -35,7 +35,7 @@ const BoardPage = () => {
     const navigate = useNavigate();
 
     const fetchData = useCallback(async () => {
-        const getBoard = await fetch(`http://localhost:8080/boards/${state.id}`, {
+        const getBoard = await fetch(`http://3.36.73.187:8080/boards/${state.id}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -62,7 +62,7 @@ const BoardPage = () => {
 
     const handleClick = async () => {
         if (id === undefined || id === null) {
-            const createBoard = await fetch('http://localhost:8080/boards', {
+            const createBoard = await fetch('http://3.36.73.187:8080/boards', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title, text, createUserId: user?.id, updateUserId: user?.id })
@@ -75,7 +75,7 @@ const BoardPage = () => {
                 console.log('실패');
             }
         } else {
-            const updateBoard = await fetch(`http://localhost:8080/boards/${id}`, {
+            const updateBoard = await fetch(`http://3.36.73.187:8080/boards/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title, text, createUserId: user?.id, updateUserId: user?.id })
@@ -113,7 +113,7 @@ const BoardPage = () => {
                             };
 
                             try {
-                                const response = await fetch('http://localhost:8080/upload', options);
+                                const response = await fetch('http://3.36.73.187:8080/upload', options);
                                 const results = await response.json();
                                 if (results.status === 200) {
                                     const link = results.data;

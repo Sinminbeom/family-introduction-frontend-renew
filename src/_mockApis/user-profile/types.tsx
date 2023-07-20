@@ -63,6 +63,7 @@ export type Reply = {
     id: string;
     profile: Profile;
     data: CommentData;
+    boardId?: string;
 };
 
 export type CommentData = {
