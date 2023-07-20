@@ -39,7 +39,7 @@ import { DefaultRootStateProps } from 'types';
 import User1 from 'assets/images/users/user-round.svg';
 
 // assets
-import { IconLogout, IconSearch, IconSettings, IconUser } from '@tabler/icons';
+import { IconLogout, IconSearch, IconSettings } from '@tabler/icons'; // IconUser
 
 // ==============================|| PROFILE MENU ||============================== //
 
@@ -265,7 +265,7 @@ const ProfileSection = () => {
                                                     </ListItemIcon>
                                                     <ListItemText primary={<Typography variant="body2">Account Settings</Typography>} />
                                                 </ListItemButton>
-                                                <ListItemButton
+                                                {/* <ListItemButton
                                                     sx={{ borderRadius: `${customization.borderRadius}px` }}
                                                     selected={selectedIndex === 1}
                                                     onClick={(event: React.MouseEvent<HTMLDivElement>) =>
@@ -297,7 +297,7 @@ const ProfileSection = () => {
                                                             </Grid>
                                                         }
                                                     />
-                                                </ListItemButton>
+                                                </ListItemButton> */}
                                                 <ListItemButton
                                                     sx={{ borderRadius: `${customization.borderRadius}px` }}
                                                     selected={selectedIndex === 4}

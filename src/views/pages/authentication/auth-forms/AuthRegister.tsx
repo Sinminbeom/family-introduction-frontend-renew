@@ -151,7 +151,7 @@ const FirebaseRegister = ({ ...others }) => {
                 })}
                 onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
                     try {
-                        await fetch('http://localhost:8080/register', {
+                        await fetch('http://3.36.73.187:8080/register', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ email: values.email, name: values.name, password: values.password })

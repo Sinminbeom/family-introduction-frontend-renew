@@ -191,3 +191,12 @@ export type StringBoolFunc = (s: string) => boolean;
 export type StringNumFunc = (s: string) => number;
 export type NumbColorFunc = (n: number) => StringColorProps | undefined;
 export type ChangeEventFunc = (e: React.ChangeEvent<HTMLInputElement>) => void;
+
+declare global {
+    interface Window {
+        BlobBuilder: any;
+        MSBlobBuilder: any;
+        MozBlobBuilder: any;
+        WebKitBlobBuilder: any;
+    }
+}
