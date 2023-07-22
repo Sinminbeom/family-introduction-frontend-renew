@@ -29,17 +29,16 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import Reply from './Reply';
 import Avatar from 'ui-component/extended/Avatar';
 import AnimateButton from 'ui-component/extended/AnimateButton';
-import { Comment as CommentProps, CommentData, Profile } from '_mockApis/user-profile/types'; // PostProps
+import { Comment as CommentProps, CommentData, Profile, PostProps } from '_mockApis/user-profile/types';
+import useAuth from 'hooks/useAuth';
 
 // assets
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
-import ThumbUpAltTwoToneIcon from '@mui/icons-material/ThumbUpAltTwoTone';
+// import ThumbUpAltTwoToneIcon from '@mui/icons-material/ThumbUpAltTwoTone';
 import ReplyTwoToneIcon from '@mui/icons-material/ReplyTwoTone';
 import AttachmentRoundedIcon from '@mui/icons-material/AttachmentRounded';
 import { FormInputProps } from 'types';
-
-const avatarImage = require.context('assets/images/profile', true);
 
 const validationSchema = yup.object().shape({
     name: yup.string().required('Reply Field is Required')
@@ -87,17 +86,21 @@ export interface CommentComponentProps {
     boardId: string;
     // handleReplayLikes: PostProps['handleReplayLikes'];
     // handleCommentLikes: PostProps['handleCommentLikes'];
-    // replyAdd: PostProps['replyAdd'];
+    replyAdd: PostProps['replyAdd'];
     user: Profile;
+    // 내가 추가한 내용
+    handleCommentDelete: (commentId: string) => Promise<void>;
+    handleReplyDelete: (commentId: string) => Promise<void>;
 }
 
 // ==============================|| SOCIAL PROFILE - COMMENT ||============================== //
 
-const Comment = ({ comment, boardId, user }: CommentComponentProps) => {
+const Comment = ({ comment, boardId, user, replyAdd, handleCommentDelete, handleReplyDelete }: CommentComponentProps) => {
     const theme = useTheme();
     const matchesXS = useMediaQuery(theme.breakpoints.down('md'));
-
     const [anchorEl, setAnchorEl] = React.useState<Element | ((element: Element) => Element) | null | undefined>(null);
+    const { user: myUser } = useAuth();
+
     const handleClick = (event: React.MouseEvent) => {
         setAnchorEl(event.currentTarget);
     };
@@ -106,18 +109,9 @@ const Comment = ({ comment, boardId, user }: CommentComponentProps) => {
         setAnchorEl(null);
     };
 
-    const handleDelete = async () => {
+    const handleDelete = () => {
         handleClose();
-        const deleteComment = await fetch(`http://3.36.73.187:8080/comments/${comment.id}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        const results = await deleteComment.json();
-        if (results.status === 200) {
-            console.log('성공');
-        } else if (results.status !== 200) {
-            console.log('실패');
-        }
+        handleCommentDelete(comment.id);
     };
 
     const [openReply, setOpenReply] = React.useState(false);
@@ -130,12 +124,13 @@ const Comment = ({ comment, boardId, user }: CommentComponentProps) => {
     if (Object.keys(comment).length > 0 && comment.data?.replies && comment.data?.replies.length) {
         repliesResult = comment.data?.replies.map((reply, index) => (
             <Reply
-                postId={boardId}
+                boardId={boardId}
                 commentId={comment.id}
                 key={index}
                 onReply={handleChangeReply}
                 reply={reply}
                 handleReplayLikes={handleReplayLikes}
+                handleReplyDelete={handleReplyDelete}
             />
         ));
     }
@@ -145,22 +140,23 @@ const Comment = ({ comment, boardId, user }: CommentComponentProps) => {
     });
 
     const { handleSubmit, errors, reset } = methods;
+
     const onSubmit = async (reply: CommentData) => {
         handleChangeReply();
-        // const replyId = uniqueId('#REPLY_');
-        // const newReply = {
-        //     id: replyId,
-        //     profile: user,
-        //     data: {
-        //         comment: reply.name,
-        //         likes: {
-        //             like: false,
-        //             value: 0
-        //         },
-        //         replies: []
-        //     }
-        // };
-        // replyAdd(boardId, comment.id, newReply);
+        // replyId
+        const newReply = {
+            id: '321321',
+            profile: myUser,
+            data: {
+                comment: reply.name,
+                likes: {
+                    like: false,
+                    value: 0
+                },
+                replies: []
+            }
+        };
+        replyAdd(boardId, comment.id, newReply);
         reset({ name: '' });
     };
 
@@ -179,16 +175,7 @@ const Comment = ({ comment, boardId, user }: CommentComponentProps) => {
                             <Grid item xs={12}>
                                 <Grid container wrap="nowrap" alignItems="center" spacing={1}>
                                     <Grid item>
-                                        <Avatar
-                                            sx={{ width: 24, height: 24 }}
-                                            size="sm"
-                                            alt="User 1"
-                                            src={
-                                                comment.profile &&
-                                                comment.profile.avatar &&
-                                                avatarImage(`./${comment.profile.avatar}`).default
-                                            }
-                                        />
+                                        <Avatar sx={{ width: 24, height: 24 }} size="sm" alt="User" src={comment.profile.avatar} />
                                     </Grid>
                                     <Grid item xs zeroMinWidth>
                                         <Grid container alignItems="center" spacing={1}>
@@ -265,20 +252,19 @@ const Comment = ({ comment, boardId, user }: CommentComponentProps) => {
                             </Grid>
                             <Grid item xs={12}>
                                 <Stack direction="row" spacing={2} sx={{ color: theme.palette.mode === 'dark' ? 'grey.700' : 'grey.800' }}>
-                                    <Button
-                                        // handleCommentLikes(boardId, comment.id)
-                                        onClick={() => console.log('fdfd')}
+                                    {/* <Button
+                                        onClick={handleCommentLikes(boardId, comment.id)}
                                         variant="text"
                                         color="inherit"
                                         size="small"
                                         startIcon={
                                             <ThumbUpAltTwoToneIcon
-                                            // color={comment.data?.likes && comment.data?.likes.like ? 'secondary' : 'inherit'}
+                                            color={comment.data?.likes && comment.data?.likes.like ? 'secondary' : 'inherit'}
                                             />
                                         }
                                     >
-                                        {/* {comment.data?.likes && comment.data?.likes.value ? comment.data?.likes.value : 0} likes */}
-                                    </Button>
+                                        {comment.data?.likes && comment.data?.likes.value ? comment.data?.likes.value : 0} likes
+                                    </Button> */}
                                     <Button
                                         variant="text"
                                         onClick={handleChangeReply}
@@ -309,13 +295,7 @@ const Comment = ({ comment, boardId, user }: CommentComponentProps) => {
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <Grid container spacing={2} alignItems="flex-start">
                                 <Grid item sx={{ display: { xs: 'none', sm: 'block' } }}>
-                                    <Avatar
-                                        sx={{ mt: 1.5 }}
-                                        alt="User 1"
-                                        // src={
-                                        //     comment.profile && comment.profile.avatar && avatarImage(`./${comment.profile.avatar}`).default
-                                        // }
-                                    />
+                                    <Avatar sx={{ mt: 1.5 }} alt="User" src={myUser?.avatar} />
                                 </Grid>
                                 <Grid item xs zeroMinWidth sx={{ mt: 1 }}>
                                     <FormProvider {...methods}>

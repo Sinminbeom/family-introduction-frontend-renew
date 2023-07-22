@@ -11,22 +11,22 @@ import { CommentData, UserProfile } from '_mockApis/user-profile/types';
 // assets
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
-import ThumbUpAltTwoToneIcon from '@mui/icons-material/ThumbUpAltTwoTone';
+// import ThumbUpAltTwoToneIcon from '@mui/icons-material/ThumbUpAltTwoTone';
 import ReplyTwoToneIcon from '@mui/icons-material/ReplyTwoTone';
-
-const avatarImage = require.context('assets/images/profile', true);
 
 export interface ReplyProps {
     commentId: string;
     handleReplayLikes: (i: string, j: string, k: string) => void;
     onReply: () => void;
-    postId: string;
+    boardId: string;
     reply: { id: string; profile: UserProfile; data: CommentData };
+    // 내가 추가한 내용
+    handleReplyDelete: (commentId: string) => Promise<void>;
 }
 
 // ==============================|| POST & COMMENT - REPLAY ||============================== //
 
-const Reply = ({ commentId, handleReplayLikes, onReply, postId, reply }: ReplyProps) => {
+const Reply = ({ commentId, handleReplayLikes, onReply, boardId, reply, handleReplyDelete }: ReplyProps) => {
     const theme = useTheme();
     const { id } = reply;
 
@@ -37,6 +37,11 @@ const Reply = ({ commentId, handleReplayLikes, onReply, postId, reply }: ReplyPr
 
     const handleClose = () => {
         setAnchorEl(null);
+    };
+
+    const handleDelete = async () => {
+        handleClose();
+        handleReplyDelete(id);
     };
 
     const replies = reply;
@@ -57,16 +62,7 @@ const Reply = ({ commentId, handleReplayLikes, onReply, postId, reply }: ReplyPr
                                 <Grid item xs={12}>
                                     <Grid container wrap="nowrap" alignItems="center" spacing={1}>
                                         <Grid item>
-                                            <Avatar
-                                                sx={{ width: 24, height: 24 }}
-                                                size="sm"
-                                                alt="User 1"
-                                                src={
-                                                    replies.profile &&
-                                                    replies.profile.avatar &&
-                                                    avatarImage(`./${replies.profile.avatar}`).default
-                                                }
-                                            />
+                                            <Avatar sx={{ width: 24, height: 24 }} size="sm" alt="User" src={reply.profile.avatar} />
                                         </Grid>
                                         <Grid item xs zeroMinWidth>
                                             <Grid container alignItems="center" spacing={1}>
@@ -129,8 +125,8 @@ const Reply = ({ commentId, handleReplayLikes, onReply, postId, reply }: ReplyPr
                                                     horizontal: 'right'
                                                 }}
                                             >
-                                                <MenuItem onClick={handleClose}>Edit</MenuItem>
-                                                <MenuItem onClick={handleClose}>Delete</MenuItem>
+                                                {/* <MenuItem onClick={handleClose}>Edit</MenuItem> */}
+                                                <MenuItem onClick={handleDelete}>Delete</MenuItem>
                                             </Menu>
                                         </Grid>
                                     </Grid>
@@ -146,7 +142,7 @@ const Reply = ({ commentId, handleReplayLikes, onReply, postId, reply }: ReplyPr
                                         spacing={2}
                                         sx={{ color: theme.palette.mode === 'dark' ? 'grey.700' : 'grey.800' }}
                                     >
-                                        <Button
+                                        {/* <Button
                                             onClick={() => handleReplayLikes(postId, commentId, id)}
                                             variant="text"
                                             color="inherit"
@@ -158,7 +154,7 @@ const Reply = ({ commentId, handleReplayLikes, onReply, postId, reply }: ReplyPr
                                             }
                                         >
                                             {replies.data.likes && replies.data.likes.value ? replies.data.likes.value : 0} likes
-                                        </Button>
+                                        </Button> */}
                                         <Button
                                             variant="text"
                                             onClick={onReply}

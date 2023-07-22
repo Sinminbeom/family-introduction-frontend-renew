@@ -35,7 +35,7 @@ const BoardPage = () => {
     const navigate = useNavigate();
 
     const fetchData = useCallback(async () => {
-        const getBoard = await fetch(`http://3.36.73.187:8080/boards/${state.id}`, {
+        const getBoard = await fetch(`${process.env.REACT_APP_API_URL}/boards/${state.id}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -62,27 +62,26 @@ const BoardPage = () => {
 
     const handleClick = async () => {
         if (id === undefined || id === null) {
-            const createBoard = await fetch('http://3.36.73.187:8080/boards', {
+            const createBoard = await fetch(`${process.env.REACT_APP_API_URL}/boards`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title, text, createUserId: user?.id, updateUserId: user?.id })
             });
             const results = await createBoard.json();
             if (results.status === 200) {
-                console.log('성공');
                 navigate(`/board/${results.data.id}`);
             } else if (results.status !== 200) {
                 console.log('실패');
             }
         } else {
-            const updateBoard = await fetch(`http://3.36.73.187:8080/boards/${id}`, {
+            const updateBoard = await fetch(`${process.env.REACT_APP_API_URL}/boards/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, text, createUserId: user?.id, updateUserId: user?.id })
+                body: JSON.stringify({ title, text, updateUserId: user?.id })
             });
             const results = await updateBoard.json();
             if (results.status === 200) {
-                console.log('성공');
+                navigate(`/board/${results.data.id}`);
             } else if (results.status !== 200) {
                 console.log('실패');
             }
@@ -104,7 +103,6 @@ const BoardPage = () => {
                     if (input.files) {
                         if (range) {
                             const file = input.files[0];
-                            console.log('User trying to uplaod this:', file);
                             formData.append('uploadFile', file);
 
                             const options = {
@@ -113,7 +111,7 @@ const BoardPage = () => {
                             };
 
                             try {
-                                const response = await fetch('http://3.36.73.187:8080/upload', options);
+                                const response = await fetch(`${process.env.REACT_APP_API_URL}/upload`, options);
                                 const results = await response.json();
                                 if (results.status === 200) {
                                     const link = results.data;

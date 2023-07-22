@@ -63,7 +63,6 @@ export type Reply = {
     id: string;
     profile: Profile;
     data: CommentData;
-    boardId?: string;
 };
 
 export type CommentData = {
@@ -104,5 +103,6 @@ export interface PostProps {
     handlePostLikes: (s: string) => Promise<void>;
     handleReplayLikes: (postId: string, commentId: string, replayId: string) => Promise<void>;
     post: PostDataType;
-    replyAdd: (postId: string, commentId: string, reply: Reply) => Promise<void>;
+    // [HACK] reply: Reply
+    replyAdd: (postId: string, commentId: string, reply: any) => Promise<void>;
 }

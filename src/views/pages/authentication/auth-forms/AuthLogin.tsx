@@ -159,7 +159,7 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
                         //         }
                         //     }
                         // );
-                        await fetch('http://3.36.73.187:8080/login', {
+                        await fetch(`${process.env.REACT_APP_API_URL}/login`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ email: values.email, password: values.password })
@@ -168,6 +168,7 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
                             .then((result) => {
                                 if (result) {
                                     if (result.status === 200) {
+                                        console.log(result);
                                         user?.dispatch({
                                             type: LOGIN,
                                             payload: {
@@ -175,7 +176,8 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
                                                 user: {
                                                     id: result.data.id,
                                                     email: result.data.email!,
-                                                    name: result.data.name || 'Betty'
+                                                    name: result.data.name || 'Betty',
+                                                    avatar: result.data.avatar
                                                 }
                                             }
                                         });
