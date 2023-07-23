@@ -1,23 +1,23 @@
 import React, { useContext } from 'react';
-import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+// import { useSelector } from 'react-redux';
+// import { Link } from 'react-router-dom';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import {
     Box,
     Button,
-    Checkbox,
-    Divider,
+    // Checkbox,
+    // Divider,
     FormControl,
-    FormControlLabel,
+    // FormControlLabel,
     FormHelperText,
     Grid,
     IconButton,
     InputAdornment,
     InputLabel,
     OutlinedInput,
-    Stack,
+    // Stack,
     Typography
     // useMediaQuery
 } from '@mui/material';
@@ -36,7 +36,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 // import Google from 'assets/images/icons/social-google.svg';
-import { DefaultRootStateProps } from 'types';
+// import { DefaultRootStateProps } from 'types';
 import { LOGIN } from 'store/actions';
 import UserContext from 'contexts/UserContext';
 
@@ -46,8 +46,8 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
     const theme = useTheme();
     const scriptedRef = useScriptRef();
     // const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
-    const customization = useSelector((state: DefaultRootStateProps) => state.customization);
-    const [checked, setChecked] = React.useState(true);
+    // const customization = useSelector((state: DefaultRootStateProps) => state.customization);
+    // const [checked, setChecked] = React.useState(true);
     const user = useContext(UserContext);
 
     // const { firebaseEmailPasswordSignIn, firebaseGoogleSignIn } = useAuth();
@@ -92,7 +92,7 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
                         </Button>
                     </AnimateButton>
                 </Grid> */}
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}>
                     <Box
                         sx={{
                             alignItems: 'center',
@@ -124,7 +124,7 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
 
                         <Divider sx={{ flexGrow: 1 }} orientation="horizontal" />
                     </Box>
-                </Grid>
+                </Grid> */}
                 <Grid item xs={12} container alignItems="center" justifyContent="center">
                     <Box sx={{ mb: 2 }}>
                         <Typography variant="subtitle1">Sign in with Email address</Typography>
@@ -204,7 +204,7 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
                 {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
                     <form noValidate onSubmit={handleSubmit} {...others}>
                         <FormControl fullWidth error={Boolean(touched.email && errors.email)} sx={{ ...theme.typography.customInput }}>
-                            <InputLabel htmlFor="outlined-adornment-email-login">Email Address / Username</InputLabel>
+                            <InputLabel htmlFor="outlined-adornment-email-login">Email Address</InputLabel>
                             <OutlinedInput
                                 id="outlined-adornment-email-login"
                                 type="email"
@@ -212,7 +212,7 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
                                 name="email"
                                 onBlur={handleBlur}
                                 onChange={handleChange}
-                                label="Email Address / Username"
+                                label="Email Address"
                                 inputProps={{}}
                             />
                             {touched.email && errors.email && (
@@ -257,7 +257,7 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
                                 </FormHelperText>
                             )}
                         </FormControl>
-                        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
+                        {/* <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
                             <FormControlLabel
                                 control={
                                     <Checkbox
@@ -278,7 +278,7 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
                             >
                                 Forgot Password?
                             </Typography>
-                        </Stack>
+                        </Stack> */}
                         {errors.submit && (
                             <Box sx={{ mt: 3 }}>
                                 <FormHelperText error>{errors.submit}</FormHelperText>

@@ -9,7 +9,7 @@ import AuthWrapper1 from '../AuthWrapper1';
 import AuthCardWrapper from '../AuthCardWrapper';
 import AuthLogin from '../auth-forms/AuthLogin';
 import Logo from 'ui-component/Logo';
-import AuthFooter from 'ui-component/cards/AuthFooter';
+// import AuthFooter from 'ui-component/cards/AuthFooter';
 import useAuth from 'hooks/useAuth';
 
 // assets
@@ -50,13 +50,13 @@ const Login = () => {
                                                     >
                                                         Hi, Welcome Back
                                                     </Typography>
-                                                    <Typography
+                                                    {/* <Typography
                                                         variant="caption"
                                                         fontSize="16px"
                                                         textAlign={matchDownSM ? 'center' : 'inherit'}
                                                     >
                                                         Enter your credentials to continue
-                                                    </Typography>
+                                                    </Typography> */}
                                                 </Stack>
                                             </Grid>
                                         </Grid>
@@ -84,9 +84,9 @@ const Login = () => {
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid item xs={12} sx={{ m: 3, mt: 1 }}>
+                {/* <Grid item xs={12} sx={{ m: 3, mt: 1 }}>
                     <AuthFooter />
-                </Grid>
+                </Grid> */}
             </Grid>
         </AuthWrapper1>
     );

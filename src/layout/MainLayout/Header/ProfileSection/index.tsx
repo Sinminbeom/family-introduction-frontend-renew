@@ -165,7 +165,7 @@ const ProfileSection = () => {
                                                     {user?.name}
                                                 </Typography>
                                             </Stack>
-                                            <Typography variant="subtitle2">Project Admin</Typography>
+                                            <Typography variant="subtitle2">{user?.email}</Typography>
                                         </Stack>
                                         {/* <OutlinedInput
                                             sx={{ width: '100%', pr: 1, pl: 2, my: 2 }}

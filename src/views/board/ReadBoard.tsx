@@ -5,12 +5,9 @@ import ReactHtmlParser from 'react-html-parser';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import { Grid, Stack, Button, Collapse, FormHelperText, TextField, useMediaQuery } from '@mui/material'; // Typography
-import EditSharpIcon from '@mui/icons-material/EditSharp';
-import ListSharpIcon from '@mui/icons-material/ListSharp';
-import DeleteSharpIcon from '@mui/icons-material/DeleteSharp';
-// import ThumbUpAltTwoToneIcon from '@mui/icons-material/ThumbUpAltTwoTone';
+import { Grid, Stack, Button, Collapse, FormHelperText, TextField, useMediaQuery, Menu, MenuItem, ButtonBase } from '@mui/material'; // Typography
 import ChatBubbleTwoToneIcon from '@mui/icons-material/ChatBubbleTwoTone';
+import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 
 // third-party
 import * as yup from 'yup';
@@ -19,7 +16,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
 import AnimateButton from 'ui-component/extended/AnimateButton';
-// import { gridSpacing } from 'store/constant';
 import Comment from './Comment';
 import Avatar from 'ui-component/extended/Avatar';
 import useAuth from 'hooks/useAuth';
@@ -85,8 +81,8 @@ const ReadeBoardPage = () => {
     const { boardId } = useParams();
     const navigate = useNavigate();
     const matchesXS = useMediaQuery(theme.breakpoints.down('md'));
-    // const { data, profile } = post;
     const [openComment, setOpenComment] = useState(!(comments?.data.comments && comments?.data.comments.length > 0));
+    const [anchorEl, setAnchorEl] = useState<Element | ((element: Element) => Element) | null | undefined>(null);
 
     const getBoardData = useCallback(async () => {
         const getBoard = await fetch(`${process.env.REACT_APP_API_URL}/boards/${boardId}`, {
@@ -249,6 +245,12 @@ const ReadeBoardPage = () => {
         setOpenComment((prev) => !prev);
     };
 
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+    const handleClick = (event: React.MouseEvent) => {
+        setAnchorEl(event.currentTarget);
+    };
     const onSubmit = async (comment: CommentData) => {
         handleChangeComment();
 
@@ -293,28 +295,55 @@ const ReadeBoardPage = () => {
         <MainCard
             title={board.title}
             secondary={
-                <Grid container spacing={2}>
+                <Grid container spacing={1}>
                     <Grid item>
-                        <Button color="primary" variant="contained" onClick={() => navigate('/board', { state: board })}>
-                            <EditSharpIcon fontSize="small" sx={{ mr: 0.75 }} />
-                        </Button>
-                    </Grid>
-                    <Grid item>
-                        <Button color="primary" variant="contained" onClick={handleDelete}>
-                            <DeleteSharpIcon fontSize="small" sx={{ mr: 0.75 }} />
-                        </Button>
-                    </Grid>
-                    <Grid item>
-                        <Button color="primary" variant="contained" onClick={() => navigate('/boards')}>
-                            <ListSharpIcon fontSize="small" sx={{ mr: 0.75 }} />
-                        </Button>
+                        <ButtonBase sx={{ borderRadius: '12px' }}>
+                            <Avatar
+                                variant="rounded"
+                                sx={{
+                                    ...theme.typography.commonAvatar,
+                                    background: theme.palette.mode === 'dark' ? theme.palette.dark.main : theme.palette.secondary.light,
+                                    color: theme.palette.mode === 'dark' ? theme.palette.dark.light : theme.palette.secondary.dark,
+                                    zIndex: 1,
+                                    transition: 'all .2s ease-in-out',
+                                    '&[aria-controls="menu-list-grow"],&:hover': {
+                                        background: theme.palette.secondary.main,
+                                        color: theme.palette.secondary.light
+                                    }
+                                }}
+                                aria-controls="menu-comment"
+                                aria-haspopup="true"
+                                onClick={handleClick}
+                            >
+                                <MoreVertTwoToneIcon fontSize="inherit" />
+                            </Avatar>
+                        </ButtonBase>
+                        <Menu
+                            id="menu-comment"
+                            anchorEl={anchorEl}
+                            keepMounted
+                            open={Boolean(anchorEl)}
+                            onClose={handleClose}
+                            variant="selectedMenu"
+                            anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'right'
+                            }}
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right'
+                            }}
+                        >
+                            <MenuItem onClick={() => navigate('/board', { state: board })}>Edit</MenuItem>
+                            <MenuItem onClick={handleDelete}>Delete</MenuItem>
+                            <MenuItem onClick={() => navigate('/boards')}>List</MenuItem>
+                        </Menu>
                     </Grid>
                 </Grid>
             }
         >
             <Grid container spacing={1}>
                 <Grid item xs={12}>
-                    {/* <div dangerouslySetInnerHTML={{ __html: board.text! }} /> */}
                     {ReactHtmlParser(board.text!)}
                 </Grid>
                 <Grid item xs={12}>
@@ -346,13 +375,7 @@ const ReadeBoardPage = () => {
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <Grid container spacing={2} alignItems="flex-start">
                                 <Grid item sx={{ display: { xs: 'none', sm: 'block' } }}>
-                                    <Avatar
-                                        sx={{ mt: 0.75 }}
-                                        alt="User 1"
-                                        // TODO: 회원가입시 이미지 넣으면 추가
-                                        src={user?.avatar}
-                                        size="xs"
-                                    />
+                                    <Avatar sx={{ mt: 0.75 }} alt="User" src={user?.avatar} size="xs" />
                                 </Grid>
                                 <Grid item xs zeroMinWidth>
                                     <FormProvider {...methods}>

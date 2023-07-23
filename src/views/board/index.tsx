@@ -83,7 +83,7 @@ const ListStylePage1 = () => {
                     <TableBody>
                         {data &&
                             data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
-                                <TableRow hover key={index} onClick={() => navigate(`/board/${row.id}`)}>
+                                <TableRow hover key={index} sx={{ cursor: 'pointer' }} onClick={() => navigate(`/board/${row.id}`)}>
                                     <TableCell sx={{ pl: 3 }}>{row.id}</TableCell>
                                     <TableCell>{row.title}</TableCell>
                                     <TableCell>

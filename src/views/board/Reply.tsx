@@ -125,7 +125,6 @@ const Reply = ({ commentId, handleReplayLikes, onReply, boardId, reply, handleRe
                                                     horizontal: 'right'
                                                 }}
                                             >
-                                                {/* <MenuItem onClick={handleClose}>Edit</MenuItem> */}
                                                 <MenuItem onClick={handleDelete}>Delete</MenuItem>
                                             </Menu>
                                         </Grid>
