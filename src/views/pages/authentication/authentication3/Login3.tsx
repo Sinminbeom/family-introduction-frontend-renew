@@ -48,7 +48,7 @@ const Login = () => {
                                                         gutterBottom
                                                         variant={matchDownSM ? 'h3' : 'h2'}
                                                     >
-                                                        Hi, Welcome Back
+                                                        용하네 가족에 오신걸 환영합니다
                                                     </Typography>
                                                     {/* <Typography
                                                         variant="caption"
