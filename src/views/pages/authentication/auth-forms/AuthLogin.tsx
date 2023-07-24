@@ -139,8 +139,8 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
                     submit: null
                 }}
                 validationSchema={Yup.object().shape({
-                    email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-                    password: Yup.string().max(255).required('Password is required')
+                    email: Yup.string().email('이메일형식에 맞지 않습니다').max(255).required('이메일은 필수입니다.'),
+                    password: Yup.string().max(255).required('비밀번호는 필수입니다.')
                 })}
                 onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
                     try {
