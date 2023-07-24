@@ -16,9 +16,9 @@ import {
     IconButton,
     InputAdornment,
     InputLabel,
-    OutlinedInput,
+    OutlinedInput
     // Stack,
-    Typography
+    // Typography
     // useMediaQuery
 } from '@mui/material';
 
@@ -125,11 +125,11 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
                         <Divider sx={{ flexGrow: 1 }} orientation="horizontal" />
                     </Box>
                 </Grid> */}
-                <Grid item xs={12} container alignItems="center" justifyContent="center">
+                {/* <Grid item xs={12} container alignItems="center" justifyContent="center">
                     <Box sx={{ mb: 2 }}>
-                        <Typography variant="subtitle1">Sign in with Email address</Typography>
+                        <Typography variant="subtitle1">로그인</Typography>
                     </Box>
-                </Grid>
+                </Grid> */}
             </Grid>
 
             <Formik
@@ -296,7 +296,7 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
                                     variant="contained"
                                     color="secondary"
                                 >
-                                    Sign in
+                                    로그인
                                 </Button>
                             </AnimateButton>
                         </Box>

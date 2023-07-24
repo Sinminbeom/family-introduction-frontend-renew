@@ -1,5 +1,5 @@
 import React, { useEffect, useContext } from 'react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 // import { useSelector } from 'react-redux';
 
 // material-ui
@@ -85,13 +85,13 @@ const FirebaseRegister = ({ ...others }) => {
 
     return (
         <>
-            <Grid container direction="column" justifyContent="center" spacing={2}>
+            {/* <Grid container direction="column" justifyContent="center" spacing={2}>
                 <Grid item xs={12} container alignItems="center" justifyContent="center">
                     <Box sx={{ mb: 2 }}>
                         <Typography variant="subtitle1">Sign up with Email address</Typography>
                     </Box>
                 </Grid>
-            </Grid>
+            </Grid> */}
 
             <Formik
                 initialValues={{
@@ -102,10 +102,10 @@ const FirebaseRegister = ({ ...others }) => {
                     submit: null
                 }}
                 validationSchema={Yup.object().shape({
-                    name: Yup.string().max(255).required('Name is required'),
-                    email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-                    password: Yup.string().max(255).required('Password is required'),
-                    avatar: Yup.string().max(255).required('avatar is required')
+                    name: Yup.string().max(255).required('이름은 필수입니다.'),
+                    email: Yup.string().email('이메일형식에 맞지 않습니다').max(255).required('이메일은 필수입니다.'),
+                    password: Yup.string().max(255).required('비밀번호는 필수입니다.'),
+                    avatar: Yup.string().max(255).required('프로필사진은 필수입니다.')
                 })}
                 onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
                     try {
@@ -226,7 +226,7 @@ const FirebaseRegister = ({ ...others }) => {
                             )}
                         </FormControl>
                         <FormControl fullWidth error={Boolean(touched.email && errors.email)} sx={{ ...theme.typography.customInput }}>
-                            <InputLabel htmlFor="outlined-adornment-email-register">Email Address / Username</InputLabel>
+                            <InputLabel htmlFor="outlined-adornment-email-register">Email Address</InputLabel>
                             <OutlinedInput
                                 id="outlined-adornment-email-register"
                                 type="email"
@@ -313,14 +313,7 @@ const FirebaseRegister = ({ ...others }) => {
                                             color="primary"
                                         />
                                     }
-                                    label={
-                                        <Typography variant="subtitle1">
-                                            Agree with &nbsp;
-                                            <Typography variant="subtitle1" component={Link} to="#">
-                                                Terms & Condition.
-                                            </Typography>
-                                        </Typography>
-                                    }
+                                    label={<Typography variant="subtitle1">약관에 동의합니다</Typography>}
                                 />
                             </Grid>
                         </Grid>
@@ -341,7 +334,7 @@ const FirebaseRegister = ({ ...others }) => {
                                     variant="contained"
                                     color="secondary"
                                 >
-                                    Sign up
+                                    회원가입
                                 </Button>
                             </AnimateButton>
                         </Box>
