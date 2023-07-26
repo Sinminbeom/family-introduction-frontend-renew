@@ -194,55 +194,57 @@ const Comment = ({ comment, boardId, user, replyAdd, handleCommentDelete, handle
                                             </Grid>
                                         </Grid>
                                     </Grid>
-                                    <Grid item>
-                                        <ButtonBase sx={{ borderRadius: '12px' }}>
-                                            <Avatar
-                                                variant="rounded"
-                                                sx={{
-                                                    ...theme.typography.commonAvatar,
-                                                    ...theme.typography.smallAvatar,
-                                                    background:
-                                                        theme.palette.mode === 'dark'
-                                                            ? theme.palette.dark.main
-                                                            : theme.palette.secondary.light,
-                                                    color:
-                                                        theme.palette.mode === 'dark'
-                                                            ? theme.palette.dark.light
-                                                            : theme.palette.secondary.dark,
-                                                    zIndex: 1,
-                                                    transition: 'all .2s ease-in-out',
-                                                    '&[aria-controls="menu-list-grow"],&:hover': {
-                                                        background: theme.palette.secondary.main,
-                                                        color: theme.palette.secondary.light
-                                                    }
+                                    {myUser?.id === user.id && (
+                                        <Grid item>
+                                            <ButtonBase sx={{ borderRadius: '12px' }}>
+                                                <Avatar
+                                                    variant="rounded"
+                                                    sx={{
+                                                        ...theme.typography.commonAvatar,
+                                                        ...theme.typography.smallAvatar,
+                                                        background:
+                                                            theme.palette.mode === 'dark'
+                                                                ? theme.palette.dark.main
+                                                                : theme.palette.secondary.light,
+                                                        color:
+                                                            theme.palette.mode === 'dark'
+                                                                ? theme.palette.dark.light
+                                                                : theme.palette.secondary.dark,
+                                                        zIndex: 1,
+                                                        transition: 'all .2s ease-in-out',
+                                                        '&[aria-controls="menu-list-grow"],&:hover': {
+                                                            background: theme.palette.secondary.main,
+                                                            color: theme.palette.secondary.light
+                                                        }
+                                                    }}
+                                                    aria-controls="menu-comment"
+                                                    aria-haspopup="true"
+                                                    onClick={handleClick}
+                                                >
+                                                    <MoreVertTwoToneIcon fontSize="inherit" />
+                                                </Avatar>
+                                            </ButtonBase>
+                                            <Menu
+                                                id="menu-comment"
+                                                anchorEl={anchorEl}
+                                                keepMounted
+                                                open={Boolean(anchorEl)}
+                                                onClose={handleClose}
+                                                variant="selectedMenu"
+                                                anchorOrigin={{
+                                                    vertical: 'bottom',
+                                                    horizontal: 'right'
                                                 }}
-                                                aria-controls="menu-comment"
-                                                aria-haspopup="true"
-                                                onClick={handleClick}
+                                                transformOrigin={{
+                                                    vertical: 'top',
+                                                    horizontal: 'right'
+                                                }}
                                             >
-                                                <MoreVertTwoToneIcon fontSize="inherit" />
-                                            </Avatar>
-                                        </ButtonBase>
-                                        <Menu
-                                            id="menu-comment"
-                                            anchorEl={anchorEl}
-                                            keepMounted
-                                            open={Boolean(anchorEl)}
-                                            onClose={handleClose}
-                                            variant="selectedMenu"
-                                            anchorOrigin={{
-                                                vertical: 'bottom',
-                                                horizontal: 'right'
-                                            }}
-                                            transformOrigin={{
-                                                vertical: 'top',
-                                                horizontal: 'right'
-                                            }}
-                                        >
-                                            {/* <MenuItem onClick={() => {}}>Edit</MenuItem> */}
-                                            <MenuItem onClick={handleDelete}>Delete</MenuItem>
-                                        </Menu>
-                                    </Grid>
+                                                {/* <MenuItem onClick={() => {}}>Edit</MenuItem> */}
+                                                <MenuItem onClick={handleDelete}>Delete</MenuItem>
+                                            </Menu>
+                                        </Grid>
+                                    )}
                                 </Grid>
                             </Grid>
                             <Grid item xs={12} sx={{ '&.MuiGrid-root': { pt: 1.5 } }}>

@@ -27,6 +27,7 @@ export interface Board {
     title?: string;
     text?: string;
     status?: string;
+    createUserId?: number;
     createUserName?: string;
     email?: string;
     image?: string;
@@ -91,7 +92,7 @@ const ReadeBoardPage = () => {
         });
         const results = await getBoard.json();
         if (results.status === 200) {
-            setBoard({ id: results.data.id, title: results.data.title, text: results.data.text });
+            setBoard({ id: results.data.id, title: results.data.title, text: results.data.text, createUserId: results.data.createUserId });
         } else if (results.status !== 200) {
             console.log('실패');
         }
@@ -334,9 +335,13 @@ const ReadeBoardPage = () => {
                                 horizontal: 'right'
                             }}
                         >
-                            <MenuItem onClick={() => navigate('/board', { state: board })}>Edit</MenuItem>
-                            <MenuItem onClick={handleDelete}>Delete</MenuItem>
-                            <MenuItem onClick={() => navigate('/boards')}>List</MenuItem>
+                            {user?.id === board.createUserId && (
+                                <>
+                                    <MenuItem onClick={() => navigate('/board', { state: board })}>편집</MenuItem>
+                                    <MenuItem onClick={handleDelete}>삭제</MenuItem>
+                                </>
+                            )}
+                            <MenuItem onClick={() => navigate('/boards')}>목록</MenuItem>
                         </Menu>
                     </Grid>
                 </Grid>

@@ -168,7 +168,6 @@ const FirebaseLogin = (props: { loginProp?: number }, { ...others }) => {
                             .then((result) => {
                                 if (result) {
                                     if (result.status === 200) {
-                                        console.log(result);
                                         user?.dispatch({
                                             type: LOGIN,
                                             payload: {
