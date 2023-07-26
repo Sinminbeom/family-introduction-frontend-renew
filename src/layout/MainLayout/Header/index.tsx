@@ -6,7 +6,7 @@ import { Avatar, Box, ButtonBase } from '@mui/material';
 import LogoSection from '../LogoSection';
 // import SearchSection from './SearchSection';
 // import LocalizationSection from './LocalizationSection';
-import MobileSection from './MobileSection';
+// import MobileSection from './MobileSection';
 import ProfileSection from './ProfileSection';
 // import NotificationSection from './NotificationSection';
 
@@ -74,9 +74,9 @@ const Header = ({ handleLeftDrawerToggle }: HeaderProps) => {
             <ProfileSection />
 
             {/* mobile header */}
-            <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+            {/* <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
                 <MobileSection />
-            </Box>
+            </Box> */}
         </>
     );
 };

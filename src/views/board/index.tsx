@@ -22,6 +22,7 @@ export interface Board {
     status?: string;
     createUserName?: string;
     userEmail?: string;
+    userAvatar?: string;
 }
 
 const ListStylePage1 = () => {
@@ -33,8 +34,7 @@ const ListStylePage1 = () => {
     const [rowsPerPage, setRowsPerPage] = React.useState<number>(5);
 
     const fetchData = async () => {
-        // const response = await fetch('http://localhost:8080/boards', {
-        const response = await fetch('http://3.36.73.187:8080/boards', {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/boards`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -83,14 +83,13 @@ const ListStylePage1 = () => {
                     <TableBody>
                         {data &&
                             data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
-                                <TableRow hover key={index} onClick={() => navigate(`/board/${row.id}`)}>
+                                <TableRow hover key={index} sx={{ cursor: 'pointer' }} onClick={() => navigate(`/board/${row.id}`)}>
                                     <TableCell sx={{ pl: 3 }}>{row.id}</TableCell>
                                     <TableCell>{row.title}</TableCell>
                                     <TableCell>
                                         <Grid container spacing={2} alignItems="center">
                                             <Grid item>
-                                                {/* src={avatarImage(`./${row.avatar}`).default} */}
-                                                <Avatar alt="User 1" />
+                                                <Avatar src={row.userAvatar} alt="User 1" />
                                             </Grid>
                                             <Grid item xs zeroMinWidth>
                                                 <Typography align="left" variant="subtitle1" component="div">

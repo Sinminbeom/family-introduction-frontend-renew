@@ -1,5 +1,5 @@
 import React, { useEffect, useContext } from 'react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 // import { useSelector } from 'react-redux';
 
 // material-ui
@@ -8,6 +8,7 @@ import {
     Box,
     Button,
     Checkbox,
+    Avatar,
     // Divider,
     FormControl,
     FormControlLabel,
@@ -34,11 +35,13 @@ import AnimateButton from 'ui-component/extended/AnimateButton';
 import { strengthColor, strengthIndicator } from 'utils/password-strength';
 import UserContext from 'contexts/UserContext';
 import { LOGIN } from 'store/actions';
+import { StringColorProps } from 'types'; // DefaultRootStateProps
 
 // assets
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { StringColorProps } from 'types'; // DefaultRootStateProps
+import UploadTwoToneIcon from '@mui/icons-material/UploadTwoTone';
+// import Loader from 'ui-component/Loader';
 
 // ===========================|| FIREBASE - REGISTER ||=========================== //
 
@@ -53,15 +56,8 @@ const FirebaseRegister = ({ ...others }) => {
     const [strength, setStrength] = React.useState(0);
     const [level, setLevel] = React.useState<StringColorProps>();
     const user = useContext(UserContext);
+    // const [isLoading, setLoading] = React.useState(false);
     // const { firebaseRegister, firebaseGoogleSignIn } = useAuth();
-
-    // const googleHandler = async () => {
-    //     try {
-    //         await firebaseGoogleSignIn();
-    //     } catch (err) {
-    //         console.error(err);
-    //     }
-    // };
 
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword);
@@ -81,80 +77,47 @@ const FirebaseRegister = ({ ...others }) => {
         changePassword('123456');
     }, []);
 
+    // useEffect(() => setLoading(false), []);
+
+    // if (isLoading !== undefined && isLoading) {
+    //     return <Loader />;
+    // }
+
     return (
         <>
-            <Grid container direction="column" justifyContent="center" spacing={2}>
-                {/* <Grid item xs={12}>
-                    <AnimateButton>
-                        <Button
-                            variant="outlined"
-                            fullWidth
-                            onClick={googleHandler}
-                            size="large"
-                            sx={{
-                                color: 'grey.700',
-                                backgroundColor: theme.palette.mode === 'dark' ? theme.palette.dark.main : theme.palette.grey[50],
-                                borderColor: theme.palette.mode === 'dark' ? theme.palette.dark.light + 20 : theme.palette.grey[100]
-                            }}
-                        >
-                            <Box sx={{ mr: { xs: 1, sm: 2, width: 20 } }}>
-                                <img src={Google} alt="google" width={16} height={16} style={{ marginRight: matchDownSM ? 8 : 16 }} />
-                            </Box>
-                            Sign up with Google
-                        </Button>
-                    </AnimateButton>
-                </Grid> */}
-                {/* <Grid item xs={12}>
-                    <Box sx={{ alignItems: 'center', display: 'flex' }}>
-                        <Divider sx={{ flexGrow: 1 }} orientation="horizontal" />
-                        <Button
-                            variant="outlined"
-                            sx={{
-                                cursor: 'unset',
-                                m: 2,
-                                py: 0.5,
-                                px: 7,
-                                borderColor:
-                                    theme.palette.mode === 'dark'
-                                        ? `${theme.palette.dark.light + 20} !important`
-                                        : `${theme.palette.grey[100]} !important`,
-                                color: `${theme.palette.grey[900]}!important`,
-                                fontWeight: 500,
-                                borderRadius: `${customization.borderRadius}px`
-                            }}
-                            disableRipple
-                            disabled
-                        >
-                            OR
-                        </Button>
-                        <Divider sx={{ flexGrow: 1 }} orientation="horizontal" />
-                    </Box>
-                </Grid> */}
+            {/* <Grid container direction="column" justifyContent="center" spacing={2}>
                 <Grid item xs={12} container alignItems="center" justifyContent="center">
                     <Box sx={{ mb: 2 }}>
                         <Typography variant="subtitle1">Sign up with Email address</Typography>
                     </Box>
                 </Grid>
-            </Grid>
+            </Grid> */}
 
             <Formik
                 initialValues={{
                     name: '',
                     email: '',
                     password: '',
+                    avatar: '',
                     submit: null
                 }}
                 validationSchema={Yup.object().shape({
-                    name: Yup.string().max(255).required('Name is required'),
-                    email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-                    password: Yup.string().max(255).required('Password is required')
+                    name: Yup.string().max(255).required('이름은 필수입니다.'),
+                    email: Yup.string().email('이메일형식에 맞지 않습니다').max(255).required('이메일은 필수입니다.'),
+                    password: Yup.string().max(255).required('비밀번호는 필수입니다.'),
+                    avatar: Yup.string().max(255).required('프로필사진은 필수입니다.')
                 })}
                 onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
                     try {
-                        await fetch('http://3.36.73.187:8080/register', {
+                        await fetch(`${process.env.REACT_APP_API_URL}/register`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ email: values.email, name: values.name, password: values.password })
+                            body: JSON.stringify({
+                                email: values.email,
+                                name: values.name,
+                                password: values.password,
+                                avatar: values.avatar
+                            })
                         })
                             .then((res) => res.json())
                             .then((result) => {
@@ -181,22 +144,6 @@ const FirebaseRegister = ({ ...others }) => {
                                     }
                                 }
                             });
-                        // await firebaseRegister(values.email, values.password).then(
-                        //     () => {
-                        //         // WARNING: do not set any formik state here as formik might be already destroyed here. You may get following error by doing so.
-                        //         // Warning: Can't perform a React state update on an unmounted component. This is a no-op, but it indicates a memory leak in your application.
-                        //         // To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function.
-                        //         // github issue: https://github.com/formium/formik/issues/2430
-                        //     },
-                        //     (err: any) => {
-                        //         if (scriptedRef.current) {
-                        //             console.log(err);
-                        //             setStatus({ success: false });
-                        //             setErrors({ submit: err.message });
-                        //             setSubmitting(false);
-                        //         }
-                        //     }
-                        // );
                     } catch (err: any) {
                         console.error(err);
                         if (scriptedRef.current) {
@@ -207,32 +154,60 @@ const FirebaseRegister = ({ ...others }) => {
                     }
                 }}
             >
-                {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
+                {({ errors, handleBlur, handleChange, handleSubmit, setFieldValue, isSubmitting, touched, values }) => (
                     <form noValidate onSubmit={handleSubmit} {...others}>
-                        {/* <Grid container spacing={matchDownSM ? 0 : 2}>
-                            <Grid item xs={12} sm={12}>
-                                <TextField
-                                    fullWidth
-                                    label="Name"
-                                    margin="normal"
-                                    name="name"
-                                    type="text"
-                                    defaultValue=""
-                                    sx={{ ...theme.typography.customInput }}
-                                />
+                        <FormControl fullWidth error={Boolean(touched.avatar && errors.avatar)} sx={{ ...theme.typography.customInput }}>
+                            <Grid container justifyContent="center" alignItems="center" spacing={1}>
+                                <Grid item>
+                                    <Avatar alt="User" src={values.avatar} sx={{ width: 64, height: 64 }} />
+                                </Grid>
+                                <Grid item>
+                                    <Button variant="outlined" component="label" size="small" startIcon={<UploadTwoToneIcon />}>
+                                        Upload
+                                        <input
+                                            accept="image/*"
+                                            multiple
+                                            type="file"
+                                            name="avatar"
+                                            onChange={async (e) => {
+                                                if (!e.target.files) {
+                                                    return;
+                                                }
+                                                // setLoading(true);
+                                                const file = e.target.files[0];
+                                                const formData = new FormData();
+                                                formData.append('uploadFile', file);
+                                                const options = {
+                                                    method: 'POST',
+                                                    body: formData
+                                                };
+                                                try {
+                                                    const response = await fetch(`${process.env.REACT_APP_API_URL}/upload`, options);
+                                                    const results = await response.json();
+                                                    if (results.status === 200) {
+                                                        const src = results.data;
+                                                        setFieldValue('avatar', src);
+                                                    } else if (results.status !== 200) {
+                                                        console.error('err', results.message);
+                                                    }
+                                                } catch (err) {
+                                                    console.error('err', err);
+                                                }
+                                                // setLoading(false);
+                                            }}
+                                            hidden
+                                        />
+                                    </Button>
+                                </Grid>
+                                <Grid item>
+                                    {touched.avatar && errors.avatar && (
+                                        <FormHelperText error id="standard-weight-helper-text--register">
+                                            {errors.avatar}
+                                        </FormHelperText>
+                                    )}
+                                </Grid>
                             </Grid>
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    fullWidth
-                                    label="Last Name"
-                                    margin="normal"
-                                    name="lname"
-                                    type="text"
-                                    defaultValue=""
-                                    sx={{ ...theme.typography.customInput }}
-                                />
-                            </Grid>
-                        </Grid> */}
+                        </FormControl>
                         <FormControl fullWidth error={Boolean(touched.name && errors.name)} sx={{ ...theme.typography.customInput }}>
                             <InputLabel htmlFor="outlined-adornment-name-register">Username</InputLabel>
                             <OutlinedInput
@@ -251,7 +226,7 @@ const FirebaseRegister = ({ ...others }) => {
                             )}
                         </FormControl>
                         <FormControl fullWidth error={Boolean(touched.email && errors.email)} sx={{ ...theme.typography.customInput }}>
-                            <InputLabel htmlFor="outlined-adornment-email-register">Email Address / Username</InputLabel>
+                            <InputLabel htmlFor="outlined-adornment-email-register">Email Address</InputLabel>
                             <OutlinedInput
                                 id="outlined-adornment-email-register"
                                 type="email"
@@ -338,14 +313,7 @@ const FirebaseRegister = ({ ...others }) => {
                                             color="primary"
                                         />
                                     }
-                                    label={
-                                        <Typography variant="subtitle1">
-                                            Agree with &nbsp;
-                                            <Typography variant="subtitle1" component={Link} to="#">
-                                                Terms & Condition.
-                                            </Typography>
-                                        </Typography>
-                                    }
+                                    label={<Typography variant="subtitle1">약관에 동의합니다</Typography>}
                                 />
                             </Grid>
                         </Grid>
@@ -366,7 +334,7 @@ const FirebaseRegister = ({ ...others }) => {
                                     variant="contained"
                                     color="secondary"
                                 >
-                                    Sign up
+                                    회원가입
                                 </Button>
                             </AnimateButton>
                         </Box>

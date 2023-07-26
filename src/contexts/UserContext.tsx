@@ -36,7 +36,8 @@ export const UserProvider = ({ children }: { children: React.ReactElement }) => 
                         user: {
                             id: userJson.id,
                             email: userJson.email,
-                            name: userJson.name || 'Betty'
+                            name: userJson.name || 'Betty',
+                            avatar: userJson.avatar
                         }
                     }
                 });
@@ -51,7 +52,6 @@ export const UserProvider = ({ children }: { children: React.ReactElement }) => 
     );
 
     const logout = () => {
-        console.log('로그아웃');
         sessionStorage.removeItem('user');
         dispatch({
             type: LOGOUT

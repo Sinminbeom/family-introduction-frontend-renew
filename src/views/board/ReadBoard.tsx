@@ -5,12 +5,9 @@ import ReactHtmlParser from 'react-html-parser';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import { Grid, Stack, Button, Collapse, FormHelperText, TextField, useMediaQuery } from '@mui/material'; // Typography
-import EditSharpIcon from '@mui/icons-material/EditSharp';
-import ListSharpIcon from '@mui/icons-material/ListSharp';
-import DeleteSharpIcon from '@mui/icons-material/DeleteSharp';
-// import ThumbUpAltTwoToneIcon from '@mui/icons-material/ThumbUpAltTwoTone';
+import { Grid, Stack, Button, Collapse, FormHelperText, TextField, useMediaQuery, Menu, MenuItem, ButtonBase } from '@mui/material'; // Typography
 import ChatBubbleTwoToneIcon from '@mui/icons-material/ChatBubbleTwoTone';
+import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 
 // third-party
 import * as yup from 'yup';
@@ -19,15 +16,21 @@ import { yupResolver } from '@hookform/resolvers/yup';
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
 import AnimateButton from 'ui-component/extended/AnimateButton';
-// import { gridSpacing } from 'store/constant';
-import { Board } from './ListBoard';
 import Comment from './Comment';
 import Avatar from 'ui-component/extended/Avatar';
 import useAuth from 'hooks/useAuth';
 import { FormInputProps } from 'types';
 import { CommentData, Post, Reply } from '_mockApis/user-profile/types';
 
-// const avatarImage = require.context('assets/images/profile', true);
+export interface Board {
+    id?: number;
+    title?: string;
+    text?: string;
+    status?: string;
+    createUserName?: string;
+    email?: string;
+    image?: string;
+}
 
 const validationSchema = yup.object().shape({
     name: yup.string().required('Comment Field is Required')
@@ -78,11 +81,11 @@ const ReadeBoardPage = () => {
     const { boardId } = useParams();
     const navigate = useNavigate();
     const matchesXS = useMediaQuery(theme.breakpoints.down('md'));
-    // const { data, profile } = post;
     const [openComment, setOpenComment] = useState(!(comments?.data.comments && comments?.data.comments.length > 0));
+    const [anchorEl, setAnchorEl] = useState<Element | ((element: Element) => Element) | null | undefined>(null);
 
     const getBoardData = useCallback(async () => {
-        const getBoard = await fetch(`http://3.36.73.187:8080/boards/${boardId}`, {
+        const getBoard = await fetch(`${process.env.REACT_APP_API_URL}/boards/${boardId}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -95,7 +98,7 @@ const ReadeBoardPage = () => {
     }, [boardId]);
 
     const getCommentsData = useCallback(async () => {
-        const getComments = await fetch(`http://3.36.73.187:8080/boards/${boardId}/comments`, {
+        const getComments = await fetch(`${process.env.REACT_APP_API_URL}/boards/${boardId}/comments`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -106,7 +109,7 @@ const ReadeBoardPage = () => {
                 profile: {
                     id: '2',
                     name: 'minbeom',
-                    avatar: '',
+                    avatar: 'https://drive.google.com/uc?export=view&id=1h26qRYBpNyccAZc6jzMujy436Wl_XfPD',
                     time: '8 min ago'
                 },
                 data: {
@@ -130,14 +133,90 @@ const ReadeBoardPage = () => {
     }, [getBoardData, getCommentsData]);
 
     const handleDelete = async () => {
-        const deleteBoard = await fetch(`http://3.36.73.187:8080/boards/${boardId}`, {
+        const deleteBoard = await fetch(`${process.env.REACT_APP_API_URL}/boards/${boardId}`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' }
         });
         const results = await deleteBoard.json();
         if (results.status === 200) {
-            console.log('성공');
             navigate('/boards');
+        } else if (results.status !== 200) {
+            console.log('실패');
+        }
+    };
+
+    const replyAdd = async (_boardId: string, commentId: string, reply: any) => {
+        // reply: Reply
+        const saveComment = await fetch(`${process.env.REACT_APP_API_URL}/boards/${_boardId}/comments/${commentId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(reply)
+        });
+        const results = await saveComment.json();
+        if (results.status === 200) {
+            setComments((prev: any) => ({
+                ...prev,
+                data: {
+                    ...prev.data,
+                    comments: prev.data.comments.map((comment: any) =>
+                        comment.id === results.data.parentId
+                            ? {
+                                  ...comment,
+                                  data: {
+                                      ...comment.data,
+                                      replies: [...comment.data.replies, results.data]
+                                  }
+                              }
+                            : {
+                                  ...comment
+                              }
+                    )
+                }
+            }));
+        } else if (results.status !== 200) {
+            console.log('실패');
+        }
+    };
+
+    const handleCommentDelete = async (commentId: string) => {
+        const deleteComment = await fetch(`${process.env.REACT_APP_API_URL}/comments/${commentId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const results = await deleteComment.json();
+        if (results.status === 200) {
+            setComments((prev: any) => ({
+                ...prev,
+                data: {
+                    ...prev.data,
+                    comments: prev.data.comments.filter((comment: any) => comment.id !== commentId)
+                }
+            }));
+        } else if (results.status !== 200) {
+            console.log('실패');
+        }
+    };
+
+    const handleReplyDelete = async (commentId: string) => {
+        const deleteComment = await fetch(`${process.env.REACT_APP_API_URL}/comments/${commentId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const results = await deleteComment.json();
+        if (results.status === 200) {
+            setComments((prev: any) => ({
+                ...prev,
+                data: {
+                    ...prev.data,
+                    comments: prev.data.comments.map((comment: any) => ({
+                        ...comment,
+                        data: {
+                            ...comment.data,
+                            replies: comment.data.replies.filter((reply: any) => reply.id !== commentId)
+                        }
+                    }))
+                }
+            }));
         } else if (results.status !== 200) {
             console.log('실패');
         }
@@ -153,8 +232,10 @@ const ReadeBoardPage = () => {
                 boardId={boardId!}
                 comment={comment}
                 key={comment.id}
-                user={comments.profile}
-                // replyAdd={replyAdd}
+                user={comment.profile}
+                replyAdd={replyAdd}
+                handleCommentDelete={handleCommentDelete}
+                handleReplyDelete={handleReplyDelete}
                 // handleCommentLikes={handleCommentLikes}
                 // handleReplayLikes={handleReplayLikes}
             />
@@ -164,6 +245,12 @@ const ReadeBoardPage = () => {
         setOpenComment((prev) => !prev);
     };
 
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+    const handleClick = (event: React.MouseEvent) => {
+        setAnchorEl(event.currentTarget);
+    };
     const onSubmit = async (comment: CommentData) => {
         handleChangeComment();
 
@@ -172,16 +259,15 @@ const ReadeBoardPage = () => {
             profile: {
                 id: user!.id!,
                 name: user!.name!,
-                avatar: '',
-                time: '8 min ago'
+                avatar: user!.avatar!,
+                time: 'now'
             },
             data: {
                 comment: comment.name,
                 replies: []
-            },
-            boardId: boardId!
+            }
         };
-        const saveComment = await fetch('http://3.36.73.187:8080/comments', {
+        const saveComment = await fetch(`${process.env.REACT_APP_API_URL}/boards/${boardId}/comments`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newComment)
@@ -192,6 +278,7 @@ const ReadeBoardPage = () => {
                 console.log(prev);
                 return { ...prev, data: { ...prev?.data, comments: [...prev?.data?.comments?.concat(results?.data)!] } };
             });
+            console.log(comments);
         } else if (results.status !== 200) {
             console.log('실패');
         }
@@ -204,33 +291,59 @@ const ReadeBoardPage = () => {
 
     const { handleSubmit, errors, reset } = methods;
 
-    // const replyAdd = async (postId: string, commentId: string, reply: Reply) => {};
     return (
         <MainCard
             title={board.title}
             secondary={
-                <Grid container spacing={2}>
+                <Grid container spacing={1}>
                     <Grid item>
-                        <Button color="primary" variant="contained" onClick={() => navigate('/board', { state: board })}>
-                            <EditSharpIcon fontSize="small" sx={{ mr: 0.75 }} />
-                        </Button>
-                    </Grid>
-                    <Grid item>
-                        <Button color="primary" variant="contained" onClick={handleDelete}>
-                            <DeleteSharpIcon fontSize="small" sx={{ mr: 0.75 }} />
-                        </Button>
-                    </Grid>
-                    <Grid item>
-                        <Button color="primary" variant="contained" onClick={() => navigate('/boards')}>
-                            <ListSharpIcon fontSize="small" sx={{ mr: 0.75 }} />
-                        </Button>
+                        <ButtonBase sx={{ borderRadius: '12px' }}>
+                            <Avatar
+                                variant="rounded"
+                                sx={{
+                                    ...theme.typography.commonAvatar,
+                                    background: theme.palette.mode === 'dark' ? theme.palette.dark.main : theme.palette.secondary.light,
+                                    color: theme.palette.mode === 'dark' ? theme.palette.dark.light : theme.palette.secondary.dark,
+                                    zIndex: 1,
+                                    transition: 'all .2s ease-in-out',
+                                    '&[aria-controls="menu-list-grow"],&:hover': {
+                                        background: theme.palette.secondary.main,
+                                        color: theme.palette.secondary.light
+                                    }
+                                }}
+                                aria-controls="menu-comment"
+                                aria-haspopup="true"
+                                onClick={handleClick}
+                            >
+                                <MoreVertTwoToneIcon fontSize="inherit" />
+                            </Avatar>
+                        </ButtonBase>
+                        <Menu
+                            id="menu-comment"
+                            anchorEl={anchorEl}
+                            keepMounted
+                            open={Boolean(anchorEl)}
+                            onClose={handleClose}
+                            variant="selectedMenu"
+                            anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'right'
+                            }}
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right'
+                            }}
+                        >
+                            <MenuItem onClick={() => navigate('/board', { state: board })}>Edit</MenuItem>
+                            <MenuItem onClick={handleDelete}>Delete</MenuItem>
+                            <MenuItem onClick={() => navigate('/boards')}>List</MenuItem>
+                        </Menu>
                     </Grid>
                 </Grid>
             }
         >
             <Grid container spacing={1}>
                 <Grid item xs={12}>
-                    {/* <div dangerouslySetInnerHTML={{ __html: board.text! }} /> */}
                     {ReactHtmlParser(board.text!)}
                 </Grid>
                 <Grid item xs={12}>
@@ -262,13 +375,7 @@ const ReadeBoardPage = () => {
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <Grid container spacing={2} alignItems="flex-start">
                                 <Grid item sx={{ display: { xs: 'none', sm: 'block' } }}>
-                                    <Avatar
-                                        sx={{ mt: 0.75 }}
-                                        alt="User 1"
-                                        // TODO: 회원가입시 이미지 넣으면 추가
-                                        // src={profile.avatar && avatarImage(`./${profile.avatar}`).default}
-                                        size="xs"
-                                    />
+                                    <Avatar sx={{ mt: 0.75 }} alt="User" src={user?.avatar} size="xs" />
                                 </Grid>
                                 <Grid item xs zeroMinWidth>
                                     <FormProvider {...methods}>
