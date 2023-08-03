@@ -2,13 +2,14 @@
 import { FormattedMessage } from 'react-intl';
 
 // assets
-import { IconBrandChrome, IconHelp, IconSitemap } from '@tabler/icons';
+import { IconBrandChrome, IconHelp, IconSitemap, IconCalendar } from '@tabler/icons';
 
 // constant
 const icons = {
     IconBrandChrome,
     IconHelp,
-    IconSitemap
+    IconSitemap,
+    IconCalendar
 };
 
 // ==============================|| SAMPLE PAGE & DOCUMENTATION MENU ITEMS ||============================== //
@@ -23,6 +24,14 @@ const other = {
             type: 'item',
             url: '/boards',
             icon: icons.IconBrandChrome,
+            breadcrumbs: false
+        },
+        {
+            id: 'calendar',
+            title: <FormattedMessage id="calendar" />,
+            type: 'item',
+            url: '/calendar',
+            icon: icons.IconCalendar,
             breadcrumbs: false
         }
         // {

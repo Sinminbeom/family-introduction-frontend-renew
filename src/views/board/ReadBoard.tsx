@@ -275,11 +275,7 @@ const ReadeBoardPage = () => {
         });
         const results = await saveComment.json();
         if (results.status === 200) {
-            setComments((prev: any) => {
-                console.log(prev);
-                return { ...prev, data: { ...prev?.data, comments: [...prev?.data?.comments?.concat(results?.data)!] } };
-            });
-            console.log(comments);
+            setComments((prev: any) => ({ ...prev, data: { ...prev?.data, comments: [...prev?.data?.comments?.concat(results?.data)!] } }));
         } else if (results.status !== 200) {
             console.log('실패');
         }

@@ -9,6 +9,7 @@ import AuthGuard from 'utils/route-guard/AuthGuard';
 const SaveBoardPage = Loadable(lazy(() => import('views/board/SaveBoard')));
 const BoardPage = Loadable(lazy(() => import('views/board')));
 const ReadBoardPage = Loadable(lazy(() => import('views/board/ReadBoard')));
+const CalendarPage = Loadable(lazy(() => import('views/calendar')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -31,6 +32,10 @@ const MainRoutes = {
         {
             path: '/board/:boardId',
             element: <ReadBoardPage />
+        },
+        {
+            path: '/calendar',
+            element: <CalendarPage />
         }
     ]
 };
